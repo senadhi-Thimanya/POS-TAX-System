@@ -14,13 +14,19 @@ class ItemManager:
 
     def deleteItem(self,itemcode): #The parameter should  be the line number
         for item in self.cart:
-            if item.code == itemcode:
+            if item.itemcode == itemcode:
                 self.cart.remove(item)
 
-    def updateItem(self,itemcode):
+    def updateItem(self, itemcodeupd, itemcode, internalprice, discount, saleprice, quantity):
         for index, item in self.cart:
-            if item.code == itemcode:
-                self.cart[index] = Item("1001", 90, 10, 100, 2)
+            if item.itemcode == itemcodeupd:
+                self.cart[index] = Item(itemcode, internalprice, discount, saleprice, quantity)
+
+    def searchItem(self, itemcode):
+        for item in self.cart:
+            if item.itemcode == itemcode:
+                return True
+            return False
 
     def viewCart(self):
         for item in self.cart:
