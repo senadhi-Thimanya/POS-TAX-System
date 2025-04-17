@@ -246,8 +246,71 @@ def searchBill():
 
 
 def generateTaxFile():
-    print("Generate Tax Transaction File functionality will be implemented here")
-    # Implementation for generating tax transaction file
+    """
+    Generate a tax transaction file in CSV format with checksums
+    """
+    # Check if there are any bills to process
+    if not billManager.bills:
+        print("\nNo bills available to generate tax transaction file")
+        return
+
+    try:
+        file_name = "tax_transactions.csv"
+
+        with open(file_name, "w") as file:
+            # Write header
+            file.write("ItemCode,Cost,SalePrice,Discount,DiscountedPrice,Checksum\n")
+
+            # Process all items from all bills
+            for bill in billManager.bills:
+                for item in bill['items']:
+                    # Create transaction line
+                    transaction_line = (f"{item['itemcode']},{item['cost']:.2f},"
+                                        f"{item['saleprice']:.2f},{item['discount']},"
+                                        f"{item['discountedprice']:.2f}")
+
+                    # Calculate checksum
+                    checksum = calculateChecksum(transaction_line)
+
+                    # Write line with checksum
+                    file.write(f"{transaction_line},{checksum}\n")
+
+        print(f"\nTax Transaction File '{file_name}' has been generated successfully")
+
+    except Exception as e:
+        print(f"\nError generating tax transaction file: {e}")
+
+
+def calculateChecksum(transaction_line):
+    """
+    Calculate checksum for a transaction line based on the specified algorithm:
+    - Count capital letters
+    - Count simple (lowercase) letters
+    - Count numbers and decimals
+    - Sum the above three values
+
+    Parameters:
+    transaction_line (str): The transaction line string
+
+    Returns:
+    int: The calculated checksum
+    """
+    capital_count = 0
+    simple_count = 0
+    number_count = 0
+
+    for char in transaction_line:
+        if char.isupper():
+            capital_count += 1
+        elif char.islower():
+            simple_count += 1
+        elif char.isdigit() or char == '.':
+            number_count += 1
+
+    # Calculate checksum
+    checksum = capital_count + simple_count + number_count
+
+    return checksum
 
 
 def main():
