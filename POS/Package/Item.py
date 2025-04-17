@@ -2,7 +2,7 @@
 
 class Item:
     def __init__(self, itemcode, internalprice, discount, saleprice, quantity):
-        self.itemCode = itemcode
+        self.itemcode = itemcode
         self.internalPrice = internalprice
         self.discount = discount
         self.salePrice = saleprice
