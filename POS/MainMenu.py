@@ -166,18 +166,23 @@ def deleteItem():
 
 def updateItem():
     while True:
-        itemcodeupd = input("\nEnter Item Code to update: ")
-        if not validateItemCode(itemcodeupd):
-            continue
+        # Show the basket first so user can see line numbers
+        viewBasket()
 
-        if itemManager.searchItem(itemcodeupd):
-            details = getItemDetails()
-            if details:
-                itemcode, internalprice, discount, saleprice, quantity = details
-                itemManager.updateItem(itemcodeupd, itemcode, internalprice, discount, saleprice, quantity)
+        if not itemManager.cart:
+            print("\nBasket is empty. Nothing to update.")
+            return
+
+        try:
+            line_number = input("\nEnter Line Number to update: ")
+            if itemManager.updateItem(line_number):
                 print("\nItem Updated Successfully")
-        else:
-            print("\nItem Not Found")
+                viewBasket()  # Show updated basket
+            # Error messages are handled inside the ItemManager.updateItem method
+
+        except Exception as e:
+            print(f"\nError: {e}")
+            continue
 
         while True:
             op = input("\nGo again? (Y/N) : ").upper()
@@ -187,6 +192,7 @@ def updateItem():
                 return
             else:
                 print("\nInvalid input. Please enter Y or N")
+
 
 
 def generateBill():
