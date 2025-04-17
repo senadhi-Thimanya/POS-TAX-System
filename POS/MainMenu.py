@@ -255,7 +255,7 @@ def generateTaxFile():
         return
 
     try:
-        file_name = "tax_transactions.csv"
+        file_name = "TaxFiles/tax_transactions.csv"
 
         with open(file_name, "w") as file:
             # Write header
