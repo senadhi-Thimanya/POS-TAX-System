@@ -246,39 +246,48 @@ def searchBill():
 
 
 def generateTaxFile():
-    """
-    Generate a tax transaction file in CSV format with checksums
-    """
-    # Check if there are any bills to process
-    if not billManager.bills:
-        print("\nNo bills available to generate tax transaction file")
-        return
+            """
+            Generate separate tax transaction files in CSV format with checksums for each bill
+            """
+            # Check if there are any bills to process
+            if not billManager.bills:
+                print("\nNo bills available to generate tax transaction files")
+                return
 
-    try:
-        file_name = "TaxFiles/tax_transactions.csv"
+            try:
+                files_created = []
 
-        with open(file_name, "w") as file:
-            # Write header
-            file.write("ItemCode,Cost,SalePrice,Discount,DiscountedPrice,Checksum\n")
+                # Process each bill separately
+                for bill in billManager.bills:
+                    bill_id = bill['bill_id']
+                    file_name = f"TaxFiles/ttf_{bill_id}.csv"
 
-            # Process all items from all bills
-            for bill in billManager.bills:
-                for item in bill['items']:
-                    # Create transaction line
-                    transaction_line = (f"{item['itemcode']},{item['cost']:.2f},"
-                                        f"{item['saleprice']:.2f},{item['discount']},"
-                                        f"{item['discountedprice']:.2f}")
+                    with open(file_name, "w") as file:
+                        # Write header
+                        file.write("ItemCode,Cost,SalePrice,Discount,DiscountedPrice,Checksum\n")
 
-                    # Calculate checksum
-                    checksum = calculateChecksum(transaction_line)
+                        # Process items for this bill
+                        for item in bill['items']:
+                            # Create transaction line
+                            transaction_line = (f"{item['itemcode']},{item['cost']:.2f},"
+                                             f"{item['saleprice']:.2f},{item['discount']},"
+                                             f"{item['discountedprice']:.2f}")
 
-                    # Write line with checksum
-                    file.write(f"{transaction_line},{checksum}\n")
+                            # Calculate checksum
+                            checksum = calculateChecksum(transaction_line)
 
-        print(f"\nTax Transaction File '{file_name}' has been generated successfully")
+                            # Write line with checksum
+                            file.write(f"{transaction_line},{checksum}\n")
 
-    except Exception as e:
-        print(f"\nError generating tax transaction file: {e}")
+                    files_created.append(file_name)
+
+                # Report success
+                print("\nTax Transaction Files generated successfully:")
+                for file in files_created:
+                    print(f"- '{file}'")
+
+            except Exception as e:
+                print(f"\nError generating tax transaction files: {e}")
 
 
 def calculateChecksum(transaction_line):
