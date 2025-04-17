@@ -8,8 +8,8 @@ class ItemManager:
     def __init__(self):
         self.cart = []
 
-    def addItem(self, itemcode, internalprice, discount, saleprice, quantity):
-        item = Item(itemcode, internalprice, discount, saleprice, quantity)
+    def addItem(self, itemcode, cost, saleprice, discount, discountedprice, quantity):
+        item = Item(itemcode, cost, saleprice, discount, discountedprice, quantity)
         self.cart.append(item)
 
     def deleteItem(self, line_number):  # Changed to accept line number
@@ -36,31 +36,45 @@ class ItemManager:
                 item = self.cart[index]
 
                 print(f"\nUpdating item: {item.itemcode}")
-                print(
-                    f"Current values: Internal Price: ${item.internalPrice} \nDiscount: {item.discount} \nQuantity: {item.quantity}")
+                print(f"Current values: Cost: ${item.cost:.2f} \nSale Price: ${item.salePrice:.2f} "
+                      f"\nDiscount: {item.discount}% \nDiscounted Price: ${item.discountedPrice:.2f} \nQuantity: {item.quantity}")
 
                 # Get new values
                 try:
-                    # Get new internal price
-                    new_internal_price = int(
-                        input("\n\tEnter new Internal Price (or press Enter to keep current): ") or item.internalPrice)
-                    if new_internal_price < 0:
-                        print("\nInternal price cannot be negative")
+                    # Get new cost
+                    new_cost = float(
+                        input("\n\tEnter new Cost (or press Enter to keep current): ") or item.cost)
+                    if new_cost < 0:
+                        print("\nCost cannot be negative")
                         return False
+
+                    # Get new sale price
+                    new_saleprice = float(
+                        input("\tEnter new Sale Price (or press Enter to keep current): ") or item.salePrice)
+                    if new_saleprice < 0:
+                        print("\nSale price cannot be negative")
+                        return False
+
+                    if new_saleprice < new_cost:
+                        print("\tWarning: Sale price is less than cost")
+                        confirm = input("\tContinue? (Y/N): ").upper()
+                        if confirm != "Y":
+                            return False
 
                     # Get new discount
-                    new_discount = int(
-                        input("\tEnter new Discount (or press Enter to keep current): ") or item.discount)
+                    new_discount = float(
+                        input("\tEnter new Discount percentage (or press Enter to keep current): ") or item.discount)
                     if new_discount < 0:
-                        print("\nDiscount cannot be negative")
+                        print("\nDiscount percentage cannot be negative")
                         return False
-                    if new_discount > new_internal_price:
-                        print("\nDiscount cannot be greater than internal price")
+                    if new_discount > 100:
+                        print("\nDiscount percentage cannot be greater than 100%")
                         return False
 
-                    # Calculate new sale price
-                    new_sale_price = new_internal_price - new_discount
-                    print(f"\tNew Sale Price calculated: ${new_sale_price}")
+                    # Calculate new discounted price
+                    discount_amount = (new_discount / 100) * new_saleprice
+                    new_discounted_price = new_saleprice - discount_amount
+                    print(f"\tNew Discounted Price calculated: ${new_discounted_price:.2f}")
 
                     # Get new quantity
                     new_quantity = int(
@@ -70,8 +84,8 @@ class ItemManager:
                         return False
 
                     # Update the item
-                    self.cart[index] = Item(item.itemcode, new_internal_price, new_discount, new_sale_price,
-                                            new_quantity)
+                    self.cart[index] = Item(item.itemcode, new_cost, new_saleprice, new_discount,
+                                            new_discounted_price, new_quantity)
                     return True
 
                 except ValueError:
@@ -86,9 +100,9 @@ class ItemManager:
 
     def searchItem(self, itemcode):
         for item in self.cart:
-            if item.itemcode == itemcode:  # Assuming itemcode is the attribute, not itemCode
+            if item.itemcode == itemcode:
                 return True
-        return False  # Fixed indentation - was returning False after first item check
+        return False
 
     def viewCart(self):
         if not self.cart:
@@ -96,17 +110,17 @@ class ItemManager:
             return
 
         print("\nCart Items:")
-        print("─" * 80)
-        print(f"{'No.':<4} {'Item Code':<15} {'Quantity':<10} {'Discount':<10} {'Sale Price':<12} {'Line Total'}")
-        print("─" * 80)
+        print("─" * 100)
+        print(
+            f"{'No.':<4} {'Item Code':<15} {'Cost':<10} {'Sale Price':<12} {'Discount':<10} {'Disc. Price':<12} {'Qty':<5} {'Line Total'}")
+        print("─" * 100)
 
         for index, item in enumerate(self.cart, 1):
-            # Using consistent attribute names based on Item class
-            # Assuming the attributes are itemcode, quantity, discount, salePrice
-            line_total = item.salePrice * item.quantity
+            line_total = item.discountedPrice * item.quantity
             print(
-                f"{index:<4} {item.itemcode:<15} {item.quantity:<10} {item.discount}%{' ':<6} ${item.salePrice:<11} ${line_total}")
-        print("─" * 80)
+                f"{index:<4} {item.itemcode:<15} ${item.cost:<9.2f} ${item.salePrice:<11.2f} {item.discount}%{' ':<6} "
+                f"${item.discountedPrice:<11.2f} {item.quantity:<5} ${line_total:.2f}")
+        print("─" * 100)
         print("\n")
 
     def getCart(self):
@@ -121,9 +135,10 @@ class ItemManager:
         for item in self.cart:
             cart_items.append({
                 'itemcode': item.itemcode,
-                'internalprice': item.internalPrice,
-                'discount': item.discount,
+                'cost': item.cost,
                 'saleprice': item.salePrice,
+                'discount': item.discount,
+                'discountedprice': item.discountedPrice,
                 'quantity': item.quantity
             })
         return cart_items

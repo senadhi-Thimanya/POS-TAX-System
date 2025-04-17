@@ -1,6 +1,8 @@
 from POS.Package.ItemManager import ItemManager
+from POS.Package.BillManager import BillManager
 
 itemManager = ItemManager()
+billManager = BillManager()
 
 
 def printMenu():
@@ -14,6 +16,7 @@ def printMenu():
 7. Generate Tax Transaction File  
 8. Exit \n"""
     print(menuText)
+
 
 def processMenuOption(option):
     match option:
@@ -37,6 +40,7 @@ def processMenuOption(option):
         case _:
             print("\nInvalid Option")
     return True
+
 
 def getInput():
     try:
@@ -70,12 +74,12 @@ def validatePrice(price, label):
     return True
 
 
-def validateDiscount(discount, internalprice):
+def validateDiscount(discount):
     if discount < 0:
-        print("\nDiscount cannot be negative")
+        print("\nDiscount percentage cannot be negative")
         return False
-    if discount > internalprice:
-        print("\nDiscount cannot be greater than internal price")
+    if discount > 100:
+        print("\nDiscount percentage cannot be greater than 100%")
         return False
     return True
 
@@ -94,23 +98,34 @@ def getItemDetails():
             continue
 
         try:
-            internalprice = int(input("\tEnter Internal Price \t: "))
-            if not validatePrice(internalprice, "Internal price"):
+            cost = float(input("\tEnter Cost \t\t: "))
+            if not validatePrice(cost, "Cost"):
                 continue
 
-            discount = int(input("\tEnter Discount \t\t: "))
-            if not validateDiscount(discount, internalprice):
+            saleprice = float(input("\tEnter Sale Price \t: "))
+            if not validatePrice(saleprice, "Sale price"):
                 continue
 
-            # Automatically calculate sale price
-            saleprice = internalprice - discount
-            print(f"\tSale Price calculated \t: ${saleprice}")
+            if saleprice < cost:
+                print("\tWarning: Sale price is less than cost")
+                confirm = input("\tContinue? (Y/N): ").upper()
+                if confirm != "Y":
+                    continue
+
+            discount_percent = float(input("\tEnter Discount Percentage \t: "))
+            if not validateDiscount(discount_percent):
+                continue
+
+            # Calculate discounted price
+            discount_amount = (discount_percent / 100) * saleprice
+            discountedprice = saleprice - discount_amount
+            print(f"\tDiscounted Price calculated \t: ${discountedprice:.2f}")
 
             quantity = int(input("\tEnter Quantity \t\t: "))
             if not validateQuantity(quantity):
                 continue
 
-            return itemcode, internalprice, discount, saleprice, quantity
+            return itemcode, cost, saleprice, discount_percent, discountedprice, quantity
 
         except ValueError:
             print("\nPlease enter valid numeric values for prices and quantity")
@@ -120,8 +135,8 @@ def addItem():
     while True:
         details = getItemDetails()
         if details:
-            itemcode, internalprice, discount, saleprice, quantity = details
-            itemManager.addItem(itemcode, internalprice, discount, saleprice, quantity)
+            itemcode, cost, saleprice, discount, discountedprice, quantity = details
+            itemManager.addItem(itemcode, cost, saleprice, discount, discountedprice, quantity)
             print("\nItem Added Successfully")
             viewBasket()
 
@@ -194,20 +209,46 @@ def updateItem():
                 print("\nInvalid input. Please enter Y or N")
 
 
-
 def generateBill():
-    print("Generate Bill functionality will be implemented here")
-    # Implementation for generating bill
+    # Check if basket is empty
+    cart_items = itemManager.getCart()
+    if not cart_items:
+        print("\nCannot generate bill: Basket is empty")
+        return
+
+    # Create the bill
+    bill = billManager.create_bill(cart_items)
+
+    if bill:
+        print("\nBill Generated Successfully")
+        billManager.view_bill(bill)
+
+        # Clear the basket
+        itemManager.clearCart()
+        print("\nBasket has been cleared")
 
 
 def searchBill():
-    print("Search Bill functionality will be implemented here")
-    # Implementation for searching bill
+    bill_id = input("\nEnter Bill ID to search: ")
+
+    try:
+        # Try to convert to integer
+        bill_id = int(bill_id)
+
+        # Search for the bill
+        bill = billManager.search_bill_by_id(bill_id)
+
+        # Display the bill if found
+        if bill:
+            billManager.view_bill(bill)
+    except ValueError:
+        print("\nPlease enter a valid bill number")
 
 
 def generateTaxFile():
     print("Generate Tax Transaction File functionality will be implemented here")
     # Implementation for generating tax transaction file
+
 
 def main():
     running = True
