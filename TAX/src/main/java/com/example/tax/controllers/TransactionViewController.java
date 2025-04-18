@@ -5,6 +5,7 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Button;
@@ -47,10 +48,27 @@ public class TransactionViewController {
     @FXML
     private Button backButton;
 
-    public void setTransactions(List<Transaction> transactions) {
+    @FXML
+    private Label fillAllRecords;
 
+    @FXML
+    private Label fillValidRecords;
+
+    @FXML
+    private Label fillInvalidRecords;
+
+    public void setTransactions(List<Transaction> transactions) {
         if (transactionTable != null) {
             transactionTable.setItems(FXCollections.observableArrayList(transactions));
+
+            // Update the labels with the counts
+            int totalRecords = transactions.size();
+            long validRecords = transactions.stream().filter(Transaction::isValidChecksum).count();
+            long invalidRecords = totalRecords - validRecords;
+
+            fillAllRecords.setText(String.valueOf(totalRecords));
+            fillValidRecords.setText(String.valueOf(validRecords));
+            fillInvalidRecords.setText(String.valueOf(invalidRecords));
         }
     }
 

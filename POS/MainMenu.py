@@ -292,10 +292,10 @@ def generateTaxFile():
 
 def calculateChecksum(transaction_line):
     """
-    Calculate checksum for a transaction line based on the specified algorithm:
-    - Count capital letters
-    - Count simple (lowercase) letters
-    - Count numbers and decimals
+    Calculate checksum for a transaction line based on these rules:
+    - Count all capital letters
+    - Count all simple (lowercase) letters
+    - Count all numbers and decimals (periods)
     - Sum the above three values
 
     Parameters:
