@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+
+<AnchorPane prefHeight="400.0" prefWidth="659.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.tax.controllers.TransactionViewController">
+   <children>
+      <Button fx:id="backButton" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" onAction="#goBack" text="Back" />
+      <TableView fx:id="transactionTable" layoutX="27.0" layoutY="56.0" prefHeight="200.0" prefWidth="606.0">
+        <columns>
+          <TableColumn fx:id="itemCode" prefWidth="75.33334350585938" text="Item Code" />
+          <TableColumn fx:id="cost" prefWidth="63.33331298828125" text="Cost" />
+            <TableColumn fx:id="salePrice" prefWidth="77.33334350585938" text="Sale Price" />
+            <TableColumn fx:id="discount" prefWidth="56.0" text="Discount" />
+            <TableColumn fx:id="discountedPrice" prefWidth="111.33331298828125" text="Discounted Price" />
+            <TableColumn fx:id="checksum" prefWidth="66.6666259765625" text="Checksum" />
+            <TableColumn fx:id="validity" prefWidth="67.99996948242188" text="Validity" />
+            <TableColumn fx:id="profit" prefWidth="80.66668701171875" text="Profit" />
+        </columns>
+      </TableView>
+   </children>
+</AnchorPane>

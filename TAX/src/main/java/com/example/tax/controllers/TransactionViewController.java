@@ -1,0 +1,97 @@
+package com.example.tax.controllers;
+
+import com.example.tax.models.Transaction;
+import javafx.collections.FXCollections;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.Button;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.util.converter.NumberStringConverter;
+import javafx.stage.Stage;
+import java.io.IOException;
+import java.util.List;
+
+public class TransactionViewController {
+    @FXML
+    private TableView<Transaction> transactionTable;
+
+    @FXML
+    private TableColumn<Transaction, String> itemCode;
+
+    @FXML
+    private TableColumn<Transaction, Number> cost;
+
+    @FXML
+    private TableColumn<Transaction, Number> salePrice;
+
+    @FXML
+    private TableColumn<Transaction, Number> discount;
+
+    @FXML
+    private TableColumn<Transaction, Number> discountedPrice;
+
+    @FXML
+    private TableColumn<Transaction, String> checksum;
+
+    @FXML
+    private TableColumn<Transaction, String> validity;
+
+    @FXML
+    private TableColumn<Transaction, Number> profit;
+
+    @FXML
+    private Button backButton;
+
+    public void setTransactions(List<Transaction> transactions) {
+
+        if (transactionTable != null) {
+            transactionTable.setItems(FXCollections.observableArrayList(transactions));
+        }
+    }
+
+    public void initializeColumns() {
+        if (transactionTable == null) {
+            return;
+        }
+
+        try {
+            // Use PropertyValueFactory for simple properties
+            itemCode.setCellValueFactory(cellData -> cellData.getValue().itemCodeProperty());
+            cost.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().getCost()));
+            salePrice.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().getSalePrice()));
+            discount.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().getDiscount()));
+            discountedPrice.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().getDiscountedPrice()));
+            checksum.setCellValueFactory(cellData -> cellData.getValue().checksumProperty());
+
+            // Set cell factory for validity column to show "Valid" or "Invalid"
+            validity.setCellValueFactory(cellData ->
+                    new SimpleStringProperty(cellData.getValue().isValidChecksum() ? "Valid" : "Invalid"));
+
+            profit.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().getProfit()));
+
+
+            // Force the table to refresh
+            transactionTable.refresh();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void goBack() {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/tax/tax-home-view.fxml"));
+            Scene scene = new Scene(fxmlLoader.load());
+            Stage stage = (Stage) backButton.getScene().getWindow();
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}

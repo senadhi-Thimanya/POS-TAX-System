@@ -6,7 +6,7 @@
 <?import javafx.scene.text.Font?>
 
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.tax.TaxHomeController">
+<AnchorPane prefHeight="400.0" prefWidth="659.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.tax.controllers.TaxHomeController">
    <children>
       <Label layoutX="89.0" layoutY="78.0" prefHeight="46.0" prefWidth="421.0" text="Government Tax Department Application" textAlignment="CENTER">
          <font>
