@@ -7,10 +7,13 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="476.0" prefWidth="769.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.tax.controllers.TransactionViewController">
+<AnchorPane prefHeight="476.0" prefWidth="769.0" style="-fx-background-color: #E6E6FA;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.tax.controllers.TransactionViewController">
    <children>
-      <Button fx:id="backButton" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" onAction="#goBack" text="Back" />
-      <TableView fx:id="transactionTable" layoutX="60.0" layoutY="50.0" prefHeight="193.0" prefWidth="649.0">
+      <Button fx:id="backButton" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" onAction="#goBack" style="-fx-background-color: #C0BFD8;" text="Back" textFill="#7558b5">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font></Button>
+      <TableView fx:id="transactionTable" layoutX="60.0" layoutY="50.0" prefHeight="193.0" prefWidth="649.0" style="-fx-background-color: #7558b5;">
         <columns>
           <TableColumn fx:id="itemCode" prefWidth="75.33334350585938" text="Item Code" />
           <TableColumn fx:id="cost" prefWidth="67.33331298828125" text="Cost" />
@@ -25,13 +28,13 @@
       <Label fx:id="allRecords" layoutX="60.0" layoutY="262.0" prefHeight="18.0" prefWidth="85.0" text="Total Records" />
       <Label fx:id="validRecords" layoutX="211.0" layoutY="263.0" prefHeight="18.0" prefWidth="85.0" text="Valid Records" />
       <Label fx:id="invalidRecords" layoutX="366.0" layoutY="263.0" prefHeight="18.0" prefWidth="85.0" text="Invalid Records" />
-      <Label fx:id="fillAllRecords" layoutX="145.0" layoutY="263.0" prefHeight="17.0" prefWidth="41.0">
+      <Label fx:id="fillAllRecords" layoutX="145.0" layoutY="263.0" prefHeight="17.0" prefWidth="41.0" textFill="#7558b5">
          <font><Font name="System Bold" size="12.0" /></font>
       </Label>
-      <Label fx:id="fillValidRecords" layoutX="296.0" layoutY="263.0" prefHeight="17.0" prefWidth="41.0">
+      <Label fx:id="fillValidRecords" layoutX="296.0" layoutY="263.0" prefHeight="17.0" prefWidth="41.0" textFill="#7558b5">
          <font><Font name="System Bold" size="12.0" /></font>
       </Label>
-      <Label fx:id="fillInvalidRecords" layoutX="468.0" layoutY="263.0" prefHeight="17.0" prefWidth="41.0">
+      <Label fx:id="fillInvalidRecords" layoutX="468.0" layoutY="263.0" prefHeight="17.0" prefWidth="41.0" textFill="#7558b5">
          <font><Font name="System Bold" size="12.0" /></font></Label>
    </children>
 </AnchorPane>

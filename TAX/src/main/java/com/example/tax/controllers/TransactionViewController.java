@@ -9,10 +9,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Button;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.util.converter.NumberStringConverter;
 import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.List;
@@ -103,7 +101,7 @@ public class TransactionViewController {
     @FXML
     private void goBack() {
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/tax/tax-home-view.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/tax/fxml/tax-home-view.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
             Stage stage = (Stage) backButton.getScene().getWindow();
             stage.setScene(scene);
