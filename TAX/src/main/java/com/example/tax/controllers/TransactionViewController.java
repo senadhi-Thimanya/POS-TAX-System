@@ -56,7 +56,13 @@ public class TransactionViewController {
     private Button editBtn;
 
     @FXML
-    private Button deleteBtn;
+    private TextField taxRateField;
+
+    @FXML
+    private Label finalTaxLabel;
+
+    @FXML
+    private Label ProfitLabel;
 
     public void setTransactions(List<Transaction> transactions) {
         if (transactionTable != null) {
@@ -218,6 +224,38 @@ public class TransactionViewController {
         fillValidRecords.setText(String.valueOf(validRecords));
         fillInvalidRecords.setText(String.valueOf(invalidRecords));
     }
+
+    @FXML
+    private void calculateFinalTaxOnClick() {
+        try {
+            // Get the tax rate from the text field
+            double taxRate = Double.parseDouble(taxRateField.getText()) / 100.0;
+
+            // Calculate the sum of (Profit - Loss) for all items
+            double totalProfit = 0.0;
+
+            for (Transaction transaction : transactionTable.getItems()) {
+                // Add the profit (which already represents profit - loss)
+                totalProfit += transaction.getProfit();
+            }
+
+            // Calculate the final tax
+            double finalTax = totalProfit * taxRate;
+
+            // Display the result in the label
+            finalTaxLabel.setText(String.format("Final Tax: Rs.%.2f", finalTax));
+            ProfitLabel.setText(String.format("Total Profit: Rs.%.2f", totalProfit));
+
+        } catch (NumberFormatException e) {
+            // Handle invalid input in the tax rate field
+            finalTaxLabel.setText("Invalid tax rate. Please enter a valid number.");
+        } catch (Exception e) {
+            // Handle other exceptions
+            finalTaxLabel.setText("Error calculating tax: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
 
     @FXML
     private void goBack() {
