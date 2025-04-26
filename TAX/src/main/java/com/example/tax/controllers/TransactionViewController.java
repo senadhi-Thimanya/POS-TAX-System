@@ -5,10 +5,7 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.Button;
+import javafx.scene.control.*;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.stage.Stage;
@@ -58,6 +55,8 @@ public class TransactionViewController {
     @FXML
     private Button editBtn;
 
+    @FXML
+    private Button deleteBtn;
 
     public void setTransactions(List<Transaction> transactions) {
         if (transactionTable != null) {
@@ -138,6 +137,86 @@ public class TransactionViewController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @FXML
+    private void deleteRecordOnClick() {
+        // Get the selected transaction
+        Transaction selectedTransaction = (Transaction) transactionTable.getSelectionModel().getSelectedItem();
+
+        // Check if a transaction is selected
+        if (selectedTransaction == null) {
+            // Show an alert or message that no transaction is selected
+            return;
+        }
+
+        // Check if the selected transaction is valid
+        if (selectedTransaction.isValidChecksum()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Warning");
+            alert.setHeaderText("Cannot Delete Valid Record");
+            alert.setContentText("Only invalid records can be deleted.");
+            alert.showAndWait();
+            return;
+        }
+
+        // Remove the selected transaction from the table
+        transactionTable.getItems().remove(selectedTransaction);
+
+        // Update the record counts
+        int totalRecords = transactionTable.getItems().size();
+        long validRecords = transactionTable.getItems().stream()
+                .filter(t -> ((Transaction) t).isValidChecksum()).count();
+        long invalidRecords = totalRecords - validRecords;
+
+        // Update the labels with the new counts
+        fillAllRecords.setText(String.valueOf(totalRecords));
+        fillValidRecords.setText(String.valueOf(validRecords));
+        fillInvalidRecords.setText(String.valueOf(invalidRecords));
+    }
+
+    @FXML
+    private void deleteAllInvalidRecords() {
+        // Create a list to store the invalid transactions
+        List<Transaction> invalidTransactions = transactionTable.getItems().stream()
+                .filter(transaction -> !transaction.isValidChecksum())
+                .toList();
+
+        // Remove all invalid transactions from the table
+        transactionTable.getItems().removeAll(invalidTransactions);
+
+        // Update the record counts
+        int totalRecords = transactionTable.getItems().size();
+        long validRecords = transactionTable.getItems().stream()
+                .filter(Transaction::isValidChecksum).count();
+        long invalidRecords = totalRecords - validRecords;
+
+        // Update the labels with the new counts
+        fillAllRecords.setText(String.valueOf(totalRecords));
+        fillValidRecords.setText(String.valueOf(validRecords));
+        fillInvalidRecords.setText(String.valueOf(invalidRecords));
+    }
+
+    @FXML
+    private void deleteAllZeroProfitRecords() {
+        // Create a list to store the zero profit transactions
+        List<Transaction> zeroProfitTransactions = transactionTable.getItems().stream()
+                .filter(transaction -> transaction.getProfit() == 0)
+                .toList();
+
+        // Remove all zero profit transactions from the table
+        transactionTable.getItems().removeAll(zeroProfitTransactions);
+
+        // Update the record counts
+        int totalRecords = transactionTable.getItems().size();
+        long validRecords = transactionTable.getItems().stream()
+                .filter(Transaction::isValidChecksum).count();
+        long invalidRecords = totalRecords - validRecords;
+
+        // Update the labels with the new counts
+        fillAllRecords.setText(String.valueOf(totalRecords));
+        fillValidRecords.setText(String.valueOf(validRecords));
+        fillInvalidRecords.setText(String.valueOf(invalidRecords));
     }
 
     @FXML

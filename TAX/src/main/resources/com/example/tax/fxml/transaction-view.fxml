@@ -36,12 +36,22 @@
       </Label>
       <Label fx:id="fillInvalidRecords" layoutX="468.0" layoutY="263.0" prefHeight="17.0" prefWidth="41.0" textFill="#7558b5">
          <font><Font name="System Bold" size="12.0" /></font></Label>
-      <Button fx:id="deleteBtn" layoutX="652.0" layoutY="259.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="57.0" style="-fx-background-color: #C0BFD8;" text="Delete" textFill="#7558b5">
+      <Button fx:id="deleteBtn" layoutX="652.0" layoutY="259.0" mnemonicParsing="false" onAction="#deleteRecordOnClick" prefHeight="25.0" prefWidth="57.0" style="-fx-background-color: #C0BFD8;" text="Delete" textFill="#7558b5">
          <font>
             <Font name="System Bold" size="12.0" />
          </font>
       </Button>
       <Button fx:id="editBtn" layoutX="578.0" layoutY="259.0" mnemonicParsing="false" onAction="#handleEditButtonClick" prefHeight="25.0" prefWidth="49.0" style="-fx-background-color: #C0BFD8;" text="Edit" textFill="#7558b5">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Button>
+      <Button fx:id="deleteInvalidBtn" layoutX="60.0" layoutY="304.0" mnemonicParsing="false" onAction="#deleteAllInvalidRecords" prefHeight="25.0" prefWidth="179.0" style="-fx-background-color: #C0BFD8;" text="Delete All Invalid Records" textFill="#7558b5">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Button>
+      <Button fx:id="deleteNoProfitBtn" layoutX="265.0" layoutY="304.0" mnemonicParsing="false" onAction="#deleteAllZeroProfitRecords" prefHeight="25.0" prefWidth="179.0" style="-fx-background-color: #C0BFD8;" text="Delete All Profit 0 Records" textFill="#7558b5">
          <font>
             <Font name="System Bold" size="12.0" />
          </font>
