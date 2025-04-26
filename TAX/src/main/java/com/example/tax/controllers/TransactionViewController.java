@@ -55,6 +55,10 @@ public class TransactionViewController {
     @FXML
     private Label fillInvalidRecords;
 
+    @FXML
+    private Button editBtn;
+
+
     public void setTransactions(List<Transaction> transactions) {
         if (transactionTable != null) {
             transactionTable.setItems(FXCollections.observableArrayList(transactions));
@@ -94,6 +98,44 @@ public class TransactionViewController {
             // Force the table to refresh
             transactionTable.refresh();
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleEditButtonClick() {
+        // Get the selected transaction
+        Transaction selectedTransaction = transactionTable.getSelectionModel().getSelectedItem();
+
+        if (selectedTransaction == null) {
+            // Show an alert or message that no transaction is selected
+            return;
+        }
+
+        try {
+            // Load the update-view.fxml
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/tax/fxml/update-view.fxml"));
+            Scene updateScene = new Scene(loader.load());
+
+            // Get the controller and pass the selected transaction
+            UpdateViewController controller = loader.getController();
+            controller.setTransaction(selectedTransaction);
+
+            // Create a new stage for the update view
+            Stage updateStage = new Stage();
+            updateStage.setTitle("Update Transaction");
+            updateStage.setScene(updateScene);
+
+            // Set the owner to the current stage to make it modal
+            updateStage.initOwner(editBtn.getScene().getWindow());
+
+            // Show the update view
+            updateStage.showAndWait();
+
+            // After the update window is closed, refresh the table
+            transactionTable.refresh();
+
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

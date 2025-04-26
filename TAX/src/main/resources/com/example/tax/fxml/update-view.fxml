@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="369.0" prefWidth="316.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.tax.controllers.UpdateViewController">
+   <children>
+      <Label layoutX="99.0" layoutY="21.0" prefHeight="29.0" prefWidth="117.0" text="Edit a record">
+         <font>
+            <Font name="System Bold" size="18.0" />
+         </font>
+      </Label>
+      <Label layoutX="26.0" layoutY="70.0" prefHeight="21.0" prefWidth="73.0" text="Item Code" />
+      <TextField fx:id="itemCodeField" layoutX="133.0" layoutY="69.0" prefHeight="25.0" prefWidth="159.0" />
+      <Label layoutX="26.0" layoutY="111.0" prefHeight="21.0" prefWidth="73.0" text="Cost" />
+      <TextField fx:id="costField" layoutX="133.0" layoutY="110.0" prefHeight="25.0" prefWidth="159.0" />
+      <Label layoutX="26.0" layoutY="150.0" prefHeight="21.0" prefWidth="73.0" text="Sale Price" />
+      <TextField fx:id="salePriceField" layoutX="133.0" layoutY="149.0" prefHeight="25.0" prefWidth="159.0" />
+      <Label layoutX="26.0" layoutY="193.0" prefHeight="21.0" prefWidth="73.0" text="Discount" />
+      <TextField fx:id="discountField" layoutX="133.0" layoutY="192.0" prefHeight="25.0" prefWidth="159.0" />
+      <Label layoutX="26.0" layoutY="235.0" prefHeight="21.0" prefWidth="99.0" text="Discounted Price" />
+      <Label layoutX="26.0" layoutY="276.0" prefHeight="21.0" prefWidth="73.0" text="Checksum" />
+      <Button fx:id="generateChecksumBtn" layoutX="168.0" layoutY="275.0" mnemonicParsing="false" onAction="#generateChecksum" prefHeight="25.0" prefWidth="124.0" text="Generate Checksum" />
+      <Label fx:id="checksumLabel" layoutX="137.0" layoutY="275.0" prefHeight="25.0" prefWidth="28.0" style="-fx-background-color: #f0f0f0;" />
+      <Button fx:id="cancelBtn" layoutX="168.0" layoutY="325.0" mnemonicParsing="false" onAction="#handleCancel" text="Cancel" />
+      <Button fx:id="updateBtn" layoutX="236.0" layoutY="325.0" mnemonicParsing="false" onAction="#handleSave" text="Update" />
+      <Label fx:id="discPriceLabel" layoutX="137.0" layoutY="233.0" prefHeight="25.0" prefWidth="153.0" style="-fx-background-color: #F0F0F0;" />
+   </children>
+</AnchorPane>
