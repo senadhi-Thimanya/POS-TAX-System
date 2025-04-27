@@ -5,10 +5,12 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="476.0" prefWidth="769.0" style="-fx-background-color: #E6E6FA;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.tax.controllers.TransactionViewController">
+<AnchorPane prefHeight="483.0" prefWidth="769.0" style="-fx-background-color: #E6E6FA;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.tax.controllers.TransactionViewController">
    <children>
       <Button fx:id="backButton" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" onAction="#goBack" style="-fx-background-color: #C0BFD8;" text="Back" textFill="#7558b5">
          <font>
@@ -26,44 +28,54 @@
             <TableColumn fx:id="profit" prefWidth="78.66668701171875" text="Profit" />
         </columns>
       </TableView>
-      <Label fx:id="allRecords" layoutX="313.0" layoutY="307.0" prefHeight="18.0" prefWidth="85.0" text="Total Records" />
-      <Label fx:id="validRecords" layoutX="313.0" layoutY="339.0" prefHeight="18.0" prefWidth="85.0" text="Valid Records" />
-      <Label fx:id="invalidRecords" layoutX="313.0" layoutY="372.0" prefHeight="18.0" prefWidth="85.0" text="Invalid Records" />
-      <Label fx:id="fillAllRecords" layoutX="415.0" layoutY="307.0" prefHeight="17.0" prefWidth="41.0" textFill="#7558b5">
+      <Label fx:id="allRecords" layoutX="60.0" layoutY="274.0" prefHeight="18.0" prefWidth="85.0" text="Total Records" />
+      <Label fx:id="validRecords" layoutX="204.0" layoutY="274.0" prefHeight="18.0" prefWidth="85.0" text="Valid Records" />
+      <Label fx:id="invalidRecords" layoutX="347.0" layoutY="274.0" prefHeight="18.0" prefWidth="85.0" text="Invalid Records" />
+      <Label fx:id="fillAllRecords" layoutX="162.0" layoutY="274.0" prefHeight="17.0" prefWidth="41.0" text="3" textFill="#7558b5">
          <font><Font name="System Bold" size="12.0" /></font>
       </Label>
-      <Label fx:id="fillValidRecords" layoutX="415.0" layoutY="339.0" prefHeight="17.0" prefWidth="41.0" textFill="#7558b5">
+      <Label fx:id="fillValidRecords" layoutX="306.0" layoutY="274.0" prefHeight="17.0" prefWidth="41.0" text="4" textFill="#7558b5">
          <font><Font name="System Bold" size="12.0" /></font>
       </Label>
-      <Label fx:id="fillInvalidRecords" layoutX="415.0" layoutY="372.0" prefHeight="17.0" prefWidth="41.0" textFill="#7558b5">
+      <Label fx:id="fillInvalidRecords" layoutX="449.0" layoutY="274.0" prefHeight="17.0" prefWidth="41.0" text="4" textFill="#7558b5">
          <font><Font name="System Bold" size="12.0" /></font></Label>
-      <Button fx:id="deleteBtn" layoutX="624.0" layoutY="292.0" mnemonicParsing="false" onAction="#deleteRecordOnClick" prefHeight="25.0" prefWidth="85.0" style="-fx-background-color: #C0BFD8;" text="Delete" textFill="#7558b5">
+      <Button fx:id="deleteBtn" layoutX="511.0" layoutY="315.0" mnemonicParsing="false" onAction="#deleteRecordOnClick" prefHeight="25.0" prefWidth="85.0" style="-fx-background-color: #C0BFD8;" text="Delete" textFill="#7558b5">
          <font>
             <Font name="System Bold" size="12.0" />
          </font>
       </Button>
-      <Button fx:id="editBtn" layoutX="529.0" layoutY="292.0" mnemonicParsing="false" onAction="#handleEditButtonClick" prefHeight="25.0" prefWidth="73.0" style="-fx-background-color: #C0BFD8;" text="Edit" textFill="#7558b5">
+      <Button fx:id="editBtn" layoutX="635.0" layoutY="315.0" mnemonicParsing="false" onAction="#handleEditButtonClick" prefHeight="25.0" prefWidth="73.0" style="-fx-background-color: #C0BFD8;" text="Edit" textFill="#7558b5">
          <font>
             <Font name="System Bold" size="12.0" />
          </font>
       </Button>
-      <Button fx:id="deleteInvalidBtn" layoutX="529.0" layoutY="338.0" mnemonicParsing="false" onAction="#deleteAllInvalidRecords" prefHeight="25.0" prefWidth="179.0" style="-fx-background-color: #C0BFD8;" text="Delete All Invalid Records" textFill="#7558b5">
+      <Button fx:id="deleteInvalidBtn" layoutX="60.0" layoutY="315.0" mnemonicParsing="false" onAction="#deleteAllInvalidRecords" prefHeight="25.0" prefWidth="179.0" style="-fx-background-color: #C0BFD8;" text="Delete All Invalid Records" textFill="#7558b5">
          <font>
             <Font name="System Bold" size="12.0" />
          </font>
       </Button>
-      <Button fx:id="deleteNoProfitBtn" layoutX="529.0" layoutY="382.0" mnemonicParsing="false" onAction="#deleteAllZeroProfitRecords" prefHeight="25.0" prefWidth="179.0" style="-fx-background-color: #C0BFD8;" text="Delete All Profit 0 Records" textFill="#7558b5">
+      <Button fx:id="deleteNoProfitBtn" layoutX="284.0" layoutY="315.0" mnemonicParsing="false" onAction="#deleteAllZeroProfitRecords" prefHeight="25.0" prefWidth="179.0" style="-fx-background-color: #C0BFD8;" text="Delete All Profit 0 Records" textFill="#7558b5">
          <font>
             <Font name="System Bold" size="12.0" />
          </font>
       </Button>
-      <Button fx:id="calculateFinalTax" layoutX="60.0" layoutY="324.0" mnemonicParsing="false" onAction="#calculateFinalTaxOnClick" prefHeight="25.0" prefWidth="179.0" style="-fx-background-color: #C0BFD8;" text="Calculate Final Tax" textFill="#7558b5">
+      <Button fx:id="calculateFinalTax" layoutX="183.0" layoutY="411.0" mnemonicParsing="false" onAction="#calculateFinalTaxOnClick" prefHeight="25.0" prefWidth="85.0" style="-fx-background-color: #C0BFD8;" text="Calculate" textFill="#7558b5">
          <font>
             <Font name="System Bold" size="12.0" />
          </font>
       </Button>
-      <TextField fx:id="taxRateField" layoutX="60.0" layoutY="292.0" prefHeight="25.0" prefWidth="179.0" promptText="Enter the Tax Rate..." />
-      <Label fx:id="finalTaxLabel" layoutX="73.0" layoutY="386.0" prefHeight="25.0" prefWidth="144.0" />
-      <Label fx:id="ProfitLabel" layoutX="73.0" layoutY="358.0" prefHeight="25.0" prefWidth="144.0" />
+      <TextField fx:id="taxRateField" layoutX="60.0" layoutY="411.0" prefHeight="25.0" prefWidth="123.0" promptText="Enter the Tax Rate..." />
+      <Label fx:id="finalTaxLabel" layoutX="313.0" layoutY="411.0" prefHeight="25.0" prefWidth="233.0" text="Final Tax : " />
+      <Label fx:id="ProfitLabel" layoutX="565.0" layoutY="270.0" prefHeight="25.0" prefWidth="144.0" text="Total Profit : " />
+      <Label ellipsisString="#7558b5" layoutX="60.0" layoutY="362.0" prefHeight="37.0" prefWidth="213.0" text="To calculate the Final Tax" textAlignment="CENTER" textFill="#7558b5">
+         <font>
+            <Font name="System Bold" size="17.0" />
+         </font>
+      </Label>
+      <ImageView fitHeight="83.0" fitWidth="160.0" layoutX="559.0" layoutY="365.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../images/Tax2.jpg" />
+         </image>
+      </ImageView>
    </children>
 </AnchorPane>

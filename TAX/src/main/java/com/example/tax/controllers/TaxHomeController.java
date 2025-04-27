@@ -10,23 +10,28 @@ import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.image.Image;
-
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Controller for the home view of the Tax Department System.
+ * Handles importing transaction files and navigating to the transaction view.
+ */
 public class TaxHomeController {
     @FXML
     private Button importButton;
-
     @FXML
     private ImageView lavenderImageView;
 
     private List<Transaction> transactions = new ArrayList<>();
 
+    /**
+     * Handles the import button click.
+     * Opens a file chooser dialog and imports the selected file.
+     */
     @FXML
     private void handleImportFiles() {
         FileChooser fileChooser = new FileChooser();
@@ -37,6 +42,7 @@ public class TaxHomeController {
         );
 
         File selectedFile = fileChooser.showOpenDialog(importButton.getScene().getWindow());
+
         if (selectedFile != null) {
             importTransactionFile(selectedFile);
             if (!transactions.isEmpty()) {
@@ -45,6 +51,10 @@ public class TaxHomeController {
         }
     }
 
+    /**
+     * Initializes the controller.
+     * Sets up the background image.
+     */
     /*@FXML
     public void initialize() {
         // Load image as before
@@ -52,7 +62,12 @@ public class TaxHomeController {
         lavenderImageView.setImage(image);
     }*/
 
-
+    /**
+     * Imports transactions from a CSV file.
+     * Parses each line and creates Transaction objects.
+     *
+     * @param file The CSV file to import
+     */
     private void importTransactionFile(File file) {
         try {
             List<String> lines = Files.readAllLines(file.toPath());
@@ -64,15 +79,16 @@ public class TaxHomeController {
                 if (line.isEmpty()) continue;
 
                 String[] data = line.split(",");
+
                 // Make sure we have enough columns (ItemCode,Cost,SalePrice,Discount,DiscountedPrice,Checksum)
                 if (data.length >= 6) {
                     try {
                         Transaction transaction = new Transaction(
-                                data[0].trim(),                    // itemCode
+                                data[0].trim(), // itemCode
                                 Double.parseDouble(data[1].trim()), // cost
                                 Double.parseDouble(data[2].trim()), // salePrice
                                 Double.parseDouble(data[3].trim()), // discount
-                                data[5].trim()                     // checksum at index 5
+                                data[5].trim() // checksum at index 5
                         );
                         transactions.add(transaction);
                     } catch (NumberFormatException e) {
@@ -101,6 +117,10 @@ public class TaxHomeController {
         }
     }
 
+    /**
+     * Shows the transaction view with the imported transactions.
+     * Navigates to the transaction-view.fxml scene.
+     */
     private void showTransactionView() {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/tax/fxml/transaction-view.fxml"));
@@ -117,6 +137,7 @@ public class TaxHomeController {
             } else {
                 showError("Failed to initialize transaction view controller");
             }
+
         } catch (IOException e) {
             showError("Error loading transaction view: " + e.getMessage());
             e.printStackTrace();
@@ -126,6 +147,11 @@ public class TaxHomeController {
         }
     }
 
+    /**
+     * Displays an error alert with the specified message.
+     *
+     * @param message The error message to display
+     */
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Import Error");

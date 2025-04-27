@@ -9,76 +9,107 @@ import javafx.scene.control.*;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.stage.Stage;
+import javafx.util.Callback;
+import javafx.scene.paint.Color;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.List;
 
+/**
+ * Controller for the transaction view.
+ * Displays transactions in a table and provides functionality for editing, deleting,
+ * and calculating tax based on transaction profits.
+ */
 public class TransactionViewController {
     @FXML
     private TableView<Transaction> transactionTable;
-
     @FXML
     private TableColumn<Transaction, String> itemCode;
-
     @FXML
     private TableColumn<Transaction, Number> cost;
-
     @FXML
     private TableColumn<Transaction, Number> salePrice;
-
     @FXML
     private TableColumn<Transaction, Number> discount;
-
     @FXML
     private TableColumn<Transaction, Number> discountedPrice;
-
     @FXML
     private TableColumn<Transaction, String> checksum;
-
     @FXML
     private TableColumn<Transaction, String> validity;
-
     @FXML
     private TableColumn<Transaction, Number> profit;
-
     @FXML
     private Button backButton;
-
     @FXML
     private Label fillAllRecords;
-
     @FXML
     private Label fillValidRecords;
-
     @FXML
     private Label fillInvalidRecords;
-
     @FXML
     private Button editBtn;
-
     @FXML
     private TextField taxRateField;
-
     @FXML
     private Label finalTaxLabel;
-
     @FXML
     private Label ProfitLabel;
 
+    /**
+     * Initializes the controller.
+     * Sets up initial values for labels and UI components.
+     */
+    @FXML
+    private void initialize() {
+        // Initialize the profit label with zero
+        ProfitLabel.setText("Total Profit: LKR 0.00");
+    }
+
+    /**
+     * Sets the transactions to display in the table.
+     *
+     * @param transactions List of transactions to display
+     */
     public void setTransactions(List<Transaction> transactions) {
         if (transactionTable != null) {
             transactionTable.setItems(FXCollections.observableArrayList(transactions));
-
-            // Update the labels with the counts
-            int totalRecords = transactions.size();
-            long validRecords = transactions.stream().filter(Transaction::isValidChecksum).count();
-            long invalidRecords = totalRecords - validRecords;
-
-            fillAllRecords.setText(String.valueOf(totalRecords));
-            fillValidRecords.setText(String.valueOf(validRecords));
-            fillInvalidRecords.setText(String.valueOf(invalidRecords));
+            updateRecordCounts();
         }
     }
 
+    /**
+     * Updates the record count labels and total profit display.
+     * Called whenever the transaction table changes.
+     */
+    private void updateRecordCounts() {
+        int totalRecords = transactionTable.getItems().size();
+        long validRecords = transactionTable.getItems().stream()
+                .filter(Transaction::isValidChecksum).count();
+        long invalidRecords = totalRecords - validRecords;
+
+        fillAllRecords.setText(String.valueOf(totalRecords));
+        fillValidRecords.setText(String.valueOf(validRecords));
+        fillInvalidRecords.setText(String.valueOf(invalidRecords));
+        updateTotalProfit();
+    }
+
+    /**
+     * Calculates and displays the total profit from all transactions.
+     * Called whenever the transaction table changes.
+     */
+    private void updateTotalProfit() {
+        double totalProfit = 0.0;
+        for (Transaction transaction : transactionTable.getItems()) {
+            totalProfit += transaction.getProfit();
+        }
+        ProfitLabel.setText(String.format("Total Profit: LKR %.2f", totalProfit));
+    }
+
+    /**
+     * Initializes the table columns with cell factories and value factories.
+     * Sets up custom formatting for discount and validity columns.
+     */
     public void initializeColumns() {
         if (transactionTable == null) {
             return;
@@ -89,31 +120,69 @@ public class TransactionViewController {
             itemCode.setCellValueFactory(cellData -> cellData.getValue().itemCodeProperty());
             cost.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().getCost()));
             salePrice.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().getSalePrice()));
+
+            // Set discount column to display as percentage
             discount.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().getDiscount()));
+            discount.setCellFactory(column -> new TableCell<Transaction, Number>() {
+                @Override
+                protected void updateItem(Number value, boolean empty) {
+                    super.updateItem(value, empty);
+                    if (empty || value == null) {
+                        setText(null);
+                    } else {
+                        setText(value.doubleValue() + "%");
+                    }
+                }
+            });
+
             discountedPrice.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().getDiscountedPrice()));
             checksum.setCellValueFactory(cellData -> cellData.getValue().checksumProperty());
 
-            // Set cell factory for validity column to show "Valid" or "Invalid"
+            // Set cell factory for validity column to show "Valid" or "Invalid" with colors
             validity.setCellValueFactory(cellData ->
                     new SimpleStringProperty(cellData.getValue().isValidChecksum() ? "Valid" : "Invalid"));
+            validity.setCellFactory(column -> new TableCell<Transaction, String>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+
+                    if (empty || item == null) {
+                        setText(null);
+                        setStyle("");
+                    } else {
+                        setText(item);
+
+                        // Set text color based on validity
+                        if (item.equals("Valid")) {
+                            setTextFill(Color.GREEN);
+                        } else {
+                            setTextFill(Color.RED);
+                        }
+                    }
+                }
+            });
 
             profit.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().getProfit()));
 
-
             // Force the table to refresh
             transactionTable.refresh();
+            updateTotalProfit();
         } catch (Exception e) {
+            showError("Column Initialization Error", "Failed to initialize columns", e.getMessage());
             e.printStackTrace();
         }
     }
 
+    /**
+     * Handles the edit button click.
+     * Opens a new window for editing the selected transaction.
+     */
     @FXML
     private void handleEditButtonClick() {
         // Get the selected transaction
         Transaction selectedTransaction = transactionTable.getSelectionModel().getSelectedItem();
-
         if (selectedTransaction == null) {
-            // Show an alert or message that no transaction is selected
+            showError("Selection Error", "No Transaction Selected", "Please select a transaction to edit.");
             return;
         }
 
@@ -139,20 +208,25 @@ public class TransactionViewController {
 
             // After the update window is closed, refresh the table
             transactionTable.refresh();
-
+            updateTotalProfit();
         } catch (IOException e) {
+            showError("Update Error", "Failed to open update window", e.getMessage());
             e.printStackTrace();
         }
     }
 
+    /**
+     * Deletes the selected transaction if it is invalid.
+     * Valid transactions cannot be deleted.
+     */
     @FXML
     private void deleteRecordOnClick() {
         // Get the selected transaction
-        Transaction selectedTransaction = (Transaction) transactionTable.getSelectionModel().getSelectedItem();
+        Transaction selectedTransaction = transactionTable.getSelectionModel().getSelectedItem();
 
         // Check if a transaction is selected
         if (selectedTransaction == null) {
-            // Show an alert or message that no transaction is selected
+            showError("Selection Error", "No Transaction Selected", "Please select a transaction to delete.");
             return;
         }
 
@@ -168,19 +242,12 @@ public class TransactionViewController {
 
         // Remove the selected transaction from the table
         transactionTable.getItems().remove(selectedTransaction);
-
-        // Update the record counts
-        int totalRecords = transactionTable.getItems().size();
-        long validRecords = transactionTable.getItems().stream()
-                .filter(t -> ((Transaction) t).isValidChecksum()).count();
-        long invalidRecords = totalRecords - validRecords;
-
-        // Update the labels with the new counts
-        fillAllRecords.setText(String.valueOf(totalRecords));
-        fillValidRecords.setText(String.valueOf(validRecords));
-        fillInvalidRecords.setText(String.valueOf(invalidRecords));
+        updateRecordCounts();
     }
 
+    /**
+     * Deletes all invalid transactions from the table.
+     */
     @FXML
     private void deleteAllInvalidRecords() {
         // Create a list to store the invalid transactions
@@ -190,19 +257,12 @@ public class TransactionViewController {
 
         // Remove all invalid transactions from the table
         transactionTable.getItems().removeAll(invalidTransactions);
-
-        // Update the record counts
-        int totalRecords = transactionTable.getItems().size();
-        long validRecords = transactionTable.getItems().stream()
-                .filter(Transaction::isValidChecksum).count();
-        long invalidRecords = totalRecords - validRecords;
-
-        // Update the labels with the new counts
-        fillAllRecords.setText(String.valueOf(totalRecords));
-        fillValidRecords.setText(String.valueOf(validRecords));
-        fillInvalidRecords.setText(String.valueOf(invalidRecords));
+        updateRecordCounts();
     }
 
+    /**
+     * Deletes all transactions with zero profit from the table.
+     */
     @FXML
     private void deleteAllZeroProfitRecords() {
         // Create a list to store the zero profit transactions
@@ -212,40 +272,28 @@ public class TransactionViewController {
 
         // Remove all zero profit transactions from the table
         transactionTable.getItems().removeAll(zeroProfitTransactions);
-
-        // Update the record counts
-        int totalRecords = transactionTable.getItems().size();
-        long validRecords = transactionTable.getItems().stream()
-                .filter(Transaction::isValidChecksum).count();
-        long invalidRecords = totalRecords - validRecords;
-
-        // Update the labels with the new counts
-        fillAllRecords.setText(String.valueOf(totalRecords));
-        fillValidRecords.setText(String.valueOf(validRecords));
-        fillInvalidRecords.setText(String.valueOf(invalidRecords));
+        updateRecordCounts();
     }
 
+    /**
+     * Calculates the final tax based on the total profit and tax rate.
+     * Displays the result in the finalTaxLabel.
+     */
     @FXML
     private void calculateFinalTaxOnClick() {
         try {
             // Get the tax rate from the text field
             double taxRate = Double.parseDouble(taxRateField.getText()) / 100.0;
 
-            // Calculate the sum of (Profit - Loss) for all items
-            double totalProfit = 0.0;
-
-            for (Transaction transaction : transactionTable.getItems()) {
-                // Add the profit (which already represents profit - loss)
-                totalProfit += transaction.getProfit();
-            }
+            // Get the current total profit value
+            String profitText = ProfitLabel.getText().replace("Total Profit: LKR ", "");
+            double totalProfit = Double.parseDouble(profitText);
 
             // Calculate the final tax
             double finalTax = totalProfit * taxRate;
 
-            // Display the result in the label
-            finalTaxLabel.setText(String.format("Final Tax: Rs.%.2f", finalTax));
-            ProfitLabel.setText(String.format("Total Profit: Rs.%.2f", totalProfit));
-
+            // Display the final tax
+            finalTaxLabel.setText(String.format("Final Tax: LKR %.2f", finalTax));
         } catch (NumberFormatException e) {
             // Handle invalid input in the tax rate field
             finalTaxLabel.setText("Invalid tax rate. Please enter a valid number.");
@@ -256,7 +304,9 @@ public class TransactionViewController {
         }
     }
 
-
+    /**
+     * Navigates back to the home view.
+     */
     @FXML
     private void goBack() {
         try {
@@ -266,7 +316,23 @@ public class TransactionViewController {
             stage.setScene(scene);
             stage.show();
         } catch (IOException e) {
+            showError("Navigation Error", "Failed to go back", e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Utility method to show error alerts.
+     *
+     * @param title The alert title
+     * @param header The alert header text
+     * @param content The alert content text
+     */
+    private void showError(String title, String header, String content) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 }

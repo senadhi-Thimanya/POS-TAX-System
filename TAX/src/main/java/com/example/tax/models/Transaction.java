@@ -1,10 +1,16 @@
 package com.example.tax.models;
 
+import com.example.tax.utils.ChecksumUtil;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.property.DoubleProperty;
 
+/**
+ * Model class representing a transaction record imported from a Tax Transaction File.
+ * Contains properties for item code, cost, sale price, discount, checksum, discounted price, and profit.
+ * Provides methods to validate checksums and calculate derived values.
+ */
 public class Transaction {
     private final SimpleStringProperty itemCode;
     private final SimpleDoubleProperty cost;
@@ -14,6 +20,15 @@ public class Transaction {
     private final SimpleDoubleProperty discountedPrice;
     private final SimpleDoubleProperty profit;
 
+    /**
+     * Constructs a new Transaction with the specified attributes.
+     *
+     * @param itemCode The unique identifier for the item
+     * @param cost The internal cost price
+     * @param salePrice The original selling price
+     * @param discount The discount percentage
+     * @param checksum The checksum value from the transaction file
+     */
     public Transaction(String itemCode, double cost, double salePrice, double discount, String checksum) {
         this.itemCode = new SimpleStringProperty(itemCode);
         this.cost = new SimpleDoubleProperty(cost);
@@ -22,11 +37,18 @@ public class Transaction {
         this.checksum = new SimpleStringProperty(checksum);
         this.discountedPrice = new SimpleDoubleProperty(0.0);
         this.profit = new SimpleDoubleProperty(0.0);
-
         calculateDiscountedPrice();
         calculateProfit();
     }
 
+    /**
+     * Validates the transaction by checking:
+     * 1. Item code format (no special characters except underscore)
+     * 2. No negative values for cost or sale price
+     * 3. Checksum matches the calculated value
+     *
+     * @return true if the transaction is valid, false otherwise
+     */
     public boolean isValidChecksum() {
         // Check for special characters in item code (except underscore)
         String itemCode = getItemCode();
@@ -42,47 +64,29 @@ public class Transaction {
         // Calculate discounted price first to ensure it's up to date
         calculateDiscountedPrice();
 
-        // Create transaction line string including the discounted price but excluding the checksum
-        String transactionLine = String.format("%s,%.2f,%.2f,%.1f,%.2f",
+        // Use the utility class to format transaction line and calculate checksum
+        String transactionLine = ChecksumUtil.formatTransactionLine(
                 getItemCode(), getCost(), getSalePrice(), getDiscount(), getDiscountedPrice());
 
-        int capitalCount = 0;
-        int simpleCount = 0;
-        int numberCount = 0;
-        int underscoreCount = 0;
-        int digitSum = 0;
-
-        // Count characters according to the enhanced rules
-        for (char c : transactionLine.toCharArray()) {
-            if (Character.isUpperCase(c)) {
-                capitalCount++;
-            } else if (Character.isLowerCase(c)) {
-                simpleCount++;
-            } else if (Character.isDigit(c)) {
-                numberCount++;
-                // Add the actual digit value to the sum
-                digitSum += Character.getNumericValue(c);
-            } else if (c == '.') {
-                numberCount++;
-            } else if (c == '_') {
-                underscoreCount++;
-            }
-            // Note: Commas are not counted
-        }
-
-        // Calculate enhanced checksum
-        int calculatedChecksum = capitalCount + simpleCount + numberCount + underscoreCount + digitSum + numberCount;
+        int calculatedChecksum = ChecksumUtil.calculateChecksum(transactionLine);
 
         // Compare with provided checksum
         return String.valueOf(calculatedChecksum).equals(getChecksum());
     }
 
-
+    /**
+     * Calculates the discounted price based on sale price and discount percentage.
+     * Updates the discountedPrice property.
+     */
     private void calculateDiscountedPrice() {
         double discounted = getSalePrice() - (getSalePrice() * (getDiscount() / 100));
         setDiscountedPrice(discounted);
     }
 
+    /**
+     * Calculates the profit as the difference between discounted price and cost.
+     * Updates the profit property.
+     */
     private void calculateProfit() {
         double calculatedProfit = getDiscountedPrice() - getCost();
         setProfit(calculatedProfit);
