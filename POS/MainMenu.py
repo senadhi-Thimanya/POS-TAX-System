@@ -1,14 +1,29 @@
+"""
+Point of Sale (POS) System for The Cake Shop
+This module provides the main interface and functionality for the POS system.
+It includes functions for managing items, bills, and tax transaction files.
+
+The system allows:
+- Adding, updating, and deleting items in a basket
+- Generating bills with unique bill numbers
+- Searching for bills by ID
+- Generating tax transaction files with checksums
+"""
+
 from POS.Package.ItemManager import ItemManager
 from POS.Package.BillManager import BillManager
 import re
 import os
-import datetime
 
+# Initialize the item manager and bill manager
 itemManager = ItemManager()
 billManager = BillManager()
 
 
 def printMenu():
+    """
+    Display the main menu options to the user.
+    """
     menuText = """\nWelcome to the Cupcake POS System\n
 1. Add Item to Basket
 2. View Basket
@@ -22,6 +37,15 @@ def printMenu():
 
 
 def processMenuOption(option):
+    """
+    Process the user's menu selection.
+
+    Args:
+        option (int): The menu option selected by the user
+
+    Returns:
+        bool: True to continue program execution, False to exit
+    """
     match option:
         case 1:
             addItem()
@@ -46,6 +70,12 @@ def processMenuOption(option):
 
 
 def getInput():
+    """
+    Get a valid menu option from the user.
+
+    Returns:
+        int: The selected menu option, or -1 if input was invalid
+    """
     try:
         return int(input("\nEnter an option : "))
     except ValueError:
@@ -54,13 +84,25 @@ def getInput():
 
 
 def validateItemCode(itemcode):
+    """
+    Validate the format of an item code.
+
+    Valid formats include:
+    - Lemon_01
+    - LE_cup01
+    - Cake124
+
+    Args:
+        itemcode (str): The item code to validate
+
+    Returns:
+        bool: True if valid, False otherwise
+    """
     if not itemcode:
         print("\nItem code cannot be empty")
         return False
 
-    # Check if itemcode matches the accepted formats:
-    # Lemon_01, LE_cup01, Cake124, etc.
-    import re
+    # Check if itemcode matches the accepted formats using regex
     pattern = r'^[A-Za-z]+(_[A-Za-z0-9]+)?[0-9]*$'
     if not re.match(pattern, itemcode):
         print("\nInvalid item code format. Examples of valid formats: Lemon_01, LE_cup01, Cake124")
@@ -70,6 +112,16 @@ def validateItemCode(itemcode):
 
 
 def validatePrice(price, label):
+    """
+    Validate that a price value is non-negative.
+
+    Args:
+        price (float): The price to validate
+        label (str): The label for the price (for error messages)
+
+    Returns:
+        bool: True if valid, False otherwise
+    """
     if price < 0:
         print(f"\n{label} cannot be negative")
         return False
@@ -77,6 +129,15 @@ def validatePrice(price, label):
 
 
 def validateDiscount(discount):
+    """
+    Validate that a discount percentage is between 0 and 100.
+
+    Args:
+        discount (float): The discount percentage to validate
+
+    Returns:
+        bool: True if valid, False otherwise
+    """
     if discount < 0:
         print("\nDiscount percentage cannot be negative")
         return False
@@ -87,6 +148,15 @@ def validateDiscount(discount):
 
 
 def validateQuantity(quantity):
+    """
+    Validate that a quantity is positive.
+
+    Args:
+        quantity (int): The quantity to validate
+
+    Returns:
+        bool: True if valid, False otherwise
+    """
     if quantity <= 0:
         print("\nQuantity must be positive")
         return False
@@ -94,26 +164,38 @@ def validateQuantity(quantity):
 
 
 def getItemDetails():
+    """
+    Get and validate item details from the user.
+
+    Returns:
+        tuple: (itemcode, cost, saleprice, discount, discountedprice, quantity) if valid,
+               None otherwise
+    """
     while True:
+        # Get and validate item code
         itemcode = input("\n\tEnter Item Code \t\t: ")
         if not validateItemCode(itemcode):
             continue
 
         try:
+            # Get and validate cost
             cost = float(input("\tEnter Cost \t\t: "))
             if not validatePrice(cost, "Cost"):
                 continue
 
+            # Get and validate sale price
             saleprice = float(input("\tEnter Sale Price \t: "))
             if not validatePrice(saleprice, "Sale price"):
                 continue
 
+            # Warn if sale price is less than cost
             if saleprice < cost:
                 print("\tWarning: Sale price is less than cost")
                 confirm = input("\tContinue? (Y/N): ").upper()
                 if confirm != "Y":
                     continue
 
+            # Get and validate discount percentage
             discount_percent = float(input("\tEnter Discount Percentage \t: "))
             if not validateDiscount(discount_percent):
                 continue
@@ -121,8 +203,9 @@ def getItemDetails():
             # Calculate discounted price
             discount_amount = (discount_percent / 100) * saleprice
             discountedprice = saleprice - discount_amount
-            print(f"\tDiscounted Price calculated \t: Rs.{discountedprice:.2f}")
+            print(f"\tDiscounted Price calculated \t: ${discountedprice:.2f}")
 
+            # Get and validate quantity
             quantity = int(input("\tEnter Quantity \t\t: "))
             if not validateQuantity(quantity):
                 continue
@@ -133,7 +216,12 @@ def getItemDetails():
 
 
 def addItem():
+    """
+    Add one or more items to the basket.
+    Prompts the user for item details and adds them to the cart.
+    """
     while True:
+        # Get item details and add to cart
         details = getItemDetails()
         if details:
             itemcode, cost, saleprice, discount, discountedprice, quantity = details
@@ -141,6 +229,7 @@ def addItem():
             print("\nItem Added Successfully")
             viewBasket()
 
+        # Ask if user wants to add another item
         while True:
             op = input("\nGo again? (Y/N) : ").upper()
             if op == "Y":
@@ -152,10 +241,15 @@ def addItem():
 
 
 def viewBasket():
+    """Display all items currently in the basket."""
     itemManager.viewCart()
 
 
 def deleteItem():
+    """
+    Delete an item from the basket by line number.
+    Displays the basket first so the user can see line numbers.
+    """
     while True:
         viewBasket()  # Show the basket first so user can see line numbers
         try:
@@ -168,6 +262,7 @@ def deleteItem():
             print(f"\nError: {e}")
             continue
 
+        # Ask if user wants to delete another item
         while True:
             op = input("\nGo again? (Y/N) : ").upper()
             if op == "Y":
@@ -179,6 +274,10 @@ def deleteItem():
 
 
 def updateItem():
+    """
+    Update an item in the basket by line number.
+    Allows changing sale price, discount, and quantity.
+    """
     while True:
         # Show the basket first so user can see line numbers
         viewBasket()
@@ -197,6 +296,7 @@ def updateItem():
             print(f"\nError: {e}")
             continue
 
+        # Ask if user wants to update another item
         while True:
             op = input("\nGo again? (Y/N) : ").upper()
             if op == "Y":
@@ -208,6 +308,11 @@ def updateItem():
 
 
 def generateBill():
+    """
+    Generate a bill from the current basket.
+    Creates a bill with a unique bill ID, calculates the grand total,
+    and clears the basket.
+    """
     # Check if basket is empty
     cart_items = itemManager.getCart()
     if not cart_items:
@@ -226,6 +331,9 @@ def generateBill():
 
 
 def searchBill():
+    """
+    Search for a bill by ID and display it if found.
+    """
     bill_id = input("\nEnter Bill ID to search: ")
     try:
         # Try to convert to integer
@@ -239,50 +347,16 @@ def searchBill():
         print("\nPlease enter a valid bill number")
 
 
-def calculateChecksum(transaction_line):
-    """
-    Enhanced checksum algorithm that:
-    1. Counts capital letters
-    2. Counts lowercase letters
-    3. Counts digits and decimals
-    4. Counts underscores (special character allowed in item codes)
-    5. Sums the actual digits in the transaction
-    6. Adds the count of digits to detect digit replacements
-
-    Parameters:
-        transaction_line (str): The transaction line string
-    Returns:
-        int: The calculated checksum
-    """
-    capital_count = 0
-    simple_count = 0
-    number_count = 0
-    underscore_count = 0
-    digit_sum = 0
-
-    for char in transaction_line:
-        if char.isupper():
-            capital_count += 1
-        elif char.islower():
-            simple_count += 1
-        elif char.isdigit():
-            number_count += 1
-            # Add the actual digit value to the sum
-            digit_sum += int(char)
-        elif char == '.':
-            number_count += 1
-        elif char == '_':
-            underscore_count += 1
-
-    # Calculate enhanced checksum
-    checksum = capital_count + simple_count + number_count + underscore_count + digit_sum + number_count
-
-    return checksum
-
-
 def generateTaxFile():
     """
-    Generate tax transaction files with improved selection options
+    Generate separate tax transaction files in CSV format with checksums for each bill.
+
+    Creates a CSV file for each bill with the format:
+    ItemCode,Cost,SalePrice,Discount,DiscountedPrice,Checksum
+    Lemon_01,3.00,5.00,5,4.75,42
+    Cake124,10.00,15.00,10,13.50,38
+
+    Each file is named ttf_{bill_id}.csv and stored in the TaxFiles directory.
     """
     # Check if there are any bills to process
     if not billManager.bills:
@@ -290,84 +364,87 @@ def generateTaxFile():
         return
 
     try:
-        print("\nTax Transaction File Generation")
-        print("1. Generate TTF for all bills")
-        print("2. Generate TTF for a specific bill")
-        choice = input("\nEnter your choice (1-2): ")
+        files_created = []
 
-        # Create directory if it doesn't exist
-        os.makedirs("TaxFiles", exist_ok=True)
-
-        if choice == "1":
-            # Generate a single TTF file for all bills
-            file_name = f"TaxFiles/ttf_all_bills.csv"
+        # Process each bill separately
+        for bill in billManager.bills:
+            bill_id = bill['bill_id']
+            file_name = f"TaxFiles/ttf_{bill_id}.csv"
 
             with open(file_name, "w") as file:
                 # Write header
-                file.write("BillID,ItemCode,Cost,SalePrice,Discount,DiscountedPrice,Checksum\n")
+                file.write("ItemCode,Cost,SalePrice,Discount,DiscountedPrice,Checksum\n")
 
-                # Process all bills and their items
-                for bill in billManager.bills:
-                    bill_id = bill['bill_id']
+                # Process items for this bill
+                for item in bill['items']:
+                    # Create transaction line
+                    transaction_line = (f"{item['itemcode']},{item['cost']:.2f},"
+                                        f"{item['saleprice']:.2f},{item['discount']},"
+                                        f"{item['discountedprice']:.2f}")
 
-                    # Process items for this bill
-                    for item in bill['items']:
-                        # Create transaction line
-                        transaction_line = (f"{item['itemcode']},{item['cost']:.2f},"
-                                            f"{item['saleprice']:.2f},{item['discount']},"
-                                            f"{item['discountedprice']:.2f}")
+                    # Calculate checksum
+                    checksum = calculateChecksum(transaction_line)
 
-                        # Calculate checksum using enhanced algorithm
-                        checksum = calculateChecksum(transaction_line)
+                    # Write line with checksum
+                    file.write(f"{transaction_line},{checksum}\n")
 
-                        # Write line with bill_id and checksum
-                        file.write(f"{bill_id},{transaction_line},{checksum}\n")
+            files_created.append(file_name)
 
-            print(f"\nTax Transaction File generated successfully: '{file_name}'")
-            print(f"File contains items from all bills")
-
-        elif choice == "2":
-            # Ask for specific bill ID
-            bill_id = input("\nEnter Bill ID to generate TTF for: ")
-            try:
-                bill_id = int(bill_id)
-                bill = billManager.search_bill_by_id(bill_id)
-                if bill:
-                    file_name = f"TaxFiles/ttf_{bill_id}.csv"
-
-                    with open(file_name, "w") as file:
-                        # Write header
-                        file.write("ItemCode,Cost,SalePrice,Discount,DiscountedPrice,Checksum\n")
-
-                        # Process items for this bill
-                        for item in bill['items']:
-                            # Create transaction line
-                            transaction_line = (f"{item['itemcode']},{item['cost']:.2f},"
-                                                f"{item['saleprice']:.2f},{item['discount']},"
-                                                f"{item['discountedprice']:.2f}")
-
-                            # Calculate checksum using enhanced algorithm
-                            checksum = calculateChecksum(transaction_line)
-
-                            # Write line with checksum
-                            file.write(f"{transaction_line},{checksum}\n")
-
-                    print(f"\nTax Transaction File generated successfully: '{file_name}'")
-                else:
-                    print(f"\nBill #{bill_id} not found")
-                    return
-            except ValueError:
-                print("\nPlease enter a valid bill number")
-                return
-        else:
-            print("\nInvalid choice")
-            return
+        # Report success
+        print("\nTax Transaction Files generated successfully:")
+        for file in files_created:
+            print(f"- '{file}'")
 
     except Exception as e:
         print(f"\nError generating tax transaction files: {e}")
 
 
+def calculateChecksum(transaction_line):
+    """
+    Calculate checksum for a transaction line based on these rules:
+    - Count all capital letters
+    - Count all simple (lowercase) letters
+    - Count all numbers and decimals (periods)
+    - Sum the above three values
+
+    Args:
+        transaction_line (str): The transaction line string
+
+    Returns:
+        int: The calculated checksum
+
+    Example:
+        Input: "Lemon_01,3.00,5.00,5,4.75"
+        Calculation:
+        - Capital letters: 1 (L)
+        - Lowercase letters: 4 (e,m,o,n)
+        - Numbers and decimals: 13 (01,3.00,5.00,5,4.75)
+        - Checksum: 1 + 4 + 13 = 18
+    """
+    capital_count = 0
+    simple_count = 0
+    number_count = 0
+
+    # Count characters according to the rules
+    for char in transaction_line:
+        if char.isupper():
+            capital_count += 1
+        elif char.islower():
+            simple_count += 1
+        elif char.isdigit() or char == '.':
+            number_count += 1
+
+    # Calculate checksum
+    checksum = capital_count + simple_count + number_count
+
+    return checksum
+
+
 def main():
+    """
+    Main function that runs the POS system.
+    Displays the menu and processes user input until exit.
+    """
     running = True
     while running:
         printMenu()
