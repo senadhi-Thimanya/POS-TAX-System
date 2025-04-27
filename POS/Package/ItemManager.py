@@ -73,8 +73,8 @@ class ItemManager:
 
                 # Display current values
                 print(f"\nUpdating item: {item.itemcode}")
-                print(f"Current values: Cost: ${item.cost:.2f} \nSale Price: ${item.salePrice:.2f} "
-                      f"\nDiscount: {item.discount}% \nDiscounted Price: ${item.discountedPrice:.2f} \nQuantity: {item.quantity}")
+                print(f"Current values: Cost: Rs.{item.cost:.2f} \nSale Price: Rs.{item.salePrice:.2f} "
+                      f"\nDiscount: {item.discount}% \nDiscounted Price: Rs.{item.discountedPrice:.2f} \nQuantity: {item.quantity}")
 
                 # Get new values with validation
                 try:
@@ -112,7 +112,7 @@ class ItemManager:
                     # Calculate new discounted price
                     discount_amount = (new_discount / 100) * new_saleprice
                     new_discounted_price = new_saleprice - discount_amount
-                    print(f"\tNew Discounted Price calculated: ${new_discounted_price:.2f}")
+                    print(f"\tNew Discounted Price calculated: Rs.{new_discounted_price:.2f}")
 
                     # Get new quantity
                     new_quantity = int(
@@ -155,6 +155,8 @@ class ItemManager:
         """
         Display all items in the shopping cart with formatting.
 
+        Output format:
+        Cart Items:
         """
         if not self.cart:
             print("Cart is empty")
@@ -170,8 +172,8 @@ class ItemManager:
         for index, item in enumerate(self.cart, 1):
             line_total = item.discountedPrice * item.quantity
             print(
-                f"{index:<4} {item.itemcode:<15} ${item.cost:<9.2f} ${item.salePrice:<11.2f} {item.discount}%{' ':<6} "
-                f"${item.discountedPrice:<11.2f} {item.quantity:<5} ${line_total:.2f}")
+                f"{index:<4} {item.itemcode:<15} Rs.{item.cost:<9.2f} Rs.{item.salePrice:<11.2f} {item.discount}%{' ':<6} "
+                f"Rs.{item.discountedPrice:<11.2f} {item.quantity:<5} Rs.{line_total:.2f}")
 
         print("─" * 100)
         print("\n")

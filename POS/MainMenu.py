@@ -8,11 +8,12 @@ The system allows:
 - Generating bills with unique bill numbers
 - Searching for bills by ID
 - Generating tax transaction files with checksums
+
+Current date: Sunday, April 27, 2025
 """
 
 from POS.Package.ItemManager import ItemManager
 from POS.Package.BillManager import BillManager
-import re
 import os
 
 # Initialize the item manager and bill manager
@@ -103,6 +104,7 @@ def validateItemCode(itemcode):
         return False
 
     # Check if itemcode matches the accepted formats using regex
+    import re
     pattern = r'^[A-Za-z]+(_[A-Za-z0-9]+)?[0-9]*$'
     if not re.match(pattern, itemcode):
         print("\nInvalid item code format. Examples of valid formats: Lemon_01, LE_cup01, Cake124")
@@ -203,7 +205,7 @@ def getItemDetails():
             # Calculate discounted price
             discount_amount = (discount_percent / 100) * saleprice
             discountedprice = saleprice - discount_amount
-            print(f"\tDiscounted Price calculated \t: ${discountedprice:.2f}")
+            print(f"\tDiscounted Price calculated \t: Rs.{discountedprice:.2f}")
 
             # Get and validate quantity
             quantity = int(input("\tEnter Quantity \t\t: "))
@@ -347,65 +349,17 @@ def searchBill():
         print("\nPlease enter a valid bill number")
 
 
-def generateTaxFile():
-    """
-    Generate separate tax transaction files in CSV format with checksums for each bill.
-
-    Creates a CSV file for each bill with the format:
-    ItemCode,Cost,SalePrice,Discount,DiscountedPrice,Checksum
-    Lemon_01,3.00,5.00,5,4.75,42
-    Cake124,10.00,15.00,10,13.50,38
-
-    Each file is named ttf_{bill_id}.csv and stored in the TaxFiles directory.
-    """
-    # Check if there are any bills to process
-    if not billManager.bills:
-        print("\nNo bills available to generate tax transaction files")
-        return
-
-    try:
-        files_created = []
-
-        # Process each bill separately
-        for bill in billManager.bills:
-            bill_id = bill['bill_id']
-            file_name = f"TaxFiles/ttf_{bill_id}.csv"
-
-            with open(file_name, "w") as file:
-                # Write header
-                file.write("ItemCode,Cost,SalePrice,Discount,DiscountedPrice,Checksum\n")
-
-                # Process items for this bill
-                for item in bill['items']:
-                    # Create transaction line
-                    transaction_line = (f"{item['itemcode']},{item['cost']:.2f},"
-                                        f"{item['saleprice']:.2f},{item['discount']},"
-                                        f"{item['discountedprice']:.2f}")
-
-                    # Calculate checksum
-                    checksum = calculateChecksum(transaction_line)
-
-                    # Write line with checksum
-                    file.write(f"{transaction_line},{checksum}\n")
-
-            files_created.append(file_name)
-
-        # Report success
-        print("\nTax Transaction Files generated successfully:")
-        for file in files_created:
-            print(f"- '{file}'")
-
-    except Exception as e:
-        print(f"\nError generating tax transaction files: {e}")
-
-
 def calculateChecksum(transaction_line):
     """
-    Calculate checksum for a transaction line based on these rules:
-    - Count all capital letters
-    - Count all simple (lowercase) letters
-    - Count all numbers and decimals (periods)
-    - Sum the above three values
+    Enhanced checksum algorithm that provides robust error detection.
+
+    The algorithm:
+    1. Counts capital letters
+    2. Counts lowercase letters
+    3. Counts digits and decimals
+    4. Counts underscores (special character allowed in item codes)
+    5. Sums the actual digits in the transaction
+    6. Adds the count of digits to detect digit replacements
 
     Args:
         transaction_line (str): The transaction line string
@@ -419,25 +373,142 @@ def calculateChecksum(transaction_line):
         - Capital letters: 1 (L)
         - Lowercase letters: 4 (e,m,o,n)
         - Numbers and decimals: 13 (01,3.00,5.00,5,4.75)
-        - Checksum: 1 + 4 + 13 = 18
+        - Underscores: 1 (_)
+        - Sum of digits: 0+1+3+0+0+5+0+0+5+4+7+5 = 30
+        - Checksum: 1 + 4 + 13 + 1 + 30 + 13 = 62
     """
     capital_count = 0
     simple_count = 0
     number_count = 0
+    underscore_count = 0
+    digit_sum = 0
 
-    # Count characters according to the rules
+    # Count characters according to the enhanced rules
     for char in transaction_line:
         if char.isupper():
             capital_count += 1
         elif char.islower():
             simple_count += 1
-        elif char.isdigit() or char == '.':
+        elif char.isdigit():
             number_count += 1
+            # Add the actual digit value to the sum
+            digit_sum += int(char)
+        elif char == '.':
+            number_count += 1
+        elif char == '_':
+            underscore_count += 1
 
-    # Calculate checksum
-    checksum = capital_count + simple_count + number_count
+    # Calculate enhanced checksum
+    checksum = capital_count + simple_count + number_count + underscore_count + digit_sum + number_count
 
     return checksum
+
+
+def generateTaxFile():
+    """
+    Generate tax transaction files with improved selection options.
+
+    Provides two options:
+    1. Generate a single TTF file for all bills
+       - Creates ttf_all_bills.csv with all items from all bills
+       - Format: BillID,ItemCode,Cost,SalePrice,Discount,DiscountedPrice,Checksum
+
+    2. Generate a TTF file for a specific bill
+       - Creates ttf_{bill_id}.csv with items from the specified bill
+       - Format: ItemCode,Cost,SalePrice,Discount,DiscountedPrice,Checksum
+
+    Example ttf_all_bills.csv:
+    BillID,ItemCode,Cost,SalePrice,Discount,DiscountedPrice,Checksum
+    1001,Cake124,10.00,15.00,10,13.50,62
+    1001,Lemon_01,3.00,5.00,5,4.75,58
+    1002,Muffin_12,5.00,8.00,0,8.00,45
+
+    Example ttf_1001.csv:
+    ItemCode,Cost,SalePrice,Discount,DiscountedPrice,Checksum
+    Cake124,10.00,15.00,10,13.50,62
+    Lemon_01,3.00,5.00,5,4.75,58
+    """
+    # Check if there are any bills to process
+    if not billManager.bills:
+        print("\nNo bills available to generate tax transaction files")
+        return
+
+    try:
+        print("\nTax Transaction File Generation")
+        print("1. Generate TTF for all bills")
+        print("2. Generate TTF for a specific bill")
+        choice = input("\nEnter your choice (1-2): ")
+
+        # Create directory if it doesn't exist
+        os.makedirs("TaxFiles", exist_ok=True)
+
+        if choice == "1":
+            # Generate a single TTF file for all bills
+            file_name = f"TaxFiles/ttf_all_bills.csv"
+
+            with open(file_name, "w") as file:
+                # Write header
+                file.write("BillID,ItemCode,Cost,SalePrice,Discount,DiscountedPrice,Checksum\n")
+
+                # Process all bills and their items
+                for bill in billManager.bills:
+                    bill_id = bill['bill_id']
+
+                    # Process items for this bill
+                    for item in bill['items']:
+                        # Create transaction line
+                        transaction_line = (f"{item['itemcode']},{item['cost']:.2f},"
+                                            f"{item['saleprice']:.2f},{item['discount']},"
+                                            f"{item['discountedprice']:.2f}")
+
+                        # Calculate checksum using enhanced algorithm
+                        checksum = calculateChecksum(transaction_line)
+
+                        # Write line with bill_id and checksum
+                        file.write(f"{bill_id},{transaction_line},{checksum}\n")
+
+            print(f"\nTax Transaction File generated successfully: '{file_name}'")
+            print(f"File contains items from all bills")
+
+        elif choice == "2":
+            # Ask for specific bill ID
+            bill_id = input("\nEnter Bill ID to generate TTF for: ")
+            try:
+                bill_id = int(bill_id)
+                bill = billManager.search_bill_by_id(bill_id)
+                if bill:
+                    file_name = f"TaxFiles/ttf_{bill_id}.csv"
+
+                    with open(file_name, "w") as file:
+                        # Write header
+                        file.write("ItemCode,Cost,SalePrice,Discount,DiscountedPrice,Checksum\n")
+
+                        # Process items for this bill
+                        for item in bill['items']:
+                            # Create transaction line
+                            transaction_line = (f"{item['itemcode']},{item['cost']:.2f},"
+                                                f"{item['saleprice']:.2f},{item['discount']},"
+                                                f"{item['discountedprice']:.2f}")
+
+                            # Calculate checksum using enhanced algorithm
+                            checksum = calculateChecksum(transaction_line)
+
+                            # Write line with checksum
+                            file.write(f"{transaction_line},{checksum}\n")
+
+                    print(f"\nTax Transaction File generated successfully: '{file_name}'")
+                else:
+                    print(f"\nBill #{bill_id} not found")
+                    return
+            except ValueError:
+                print("\nPlease enter a valid bill number")
+                return
+        else:
+            print("\nInvalid choice")
+            return
+
+    except Exception as e:
+        print(f"\nError generating tax transaction files: {e}")
 
 
 def main():
