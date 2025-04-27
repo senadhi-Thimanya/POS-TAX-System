@@ -399,7 +399,7 @@ def calculateChecksum(transaction_line):
             underscore_count += 1
 
     # Calculate enhanced checksum
-    checksum = capital_count + simple_count + number_count + underscore_count + digit_sum + number_count
+    checksum = capital_count + simple_count + number_count + underscore_count + digit_sum
 
     return checksum
 

@@ -35,10 +35,12 @@ public class ChecksumUtil {
             } else if (c == '_') {
                 underscoreCount++;
             }
-        }
+        } // Added missing closing bracket
 
-        return capitalCount + simpleCount + numberCount + underscoreCount + digitSum + numberCount;
+        return capitalCount + simpleCount + numberCount + underscoreCount + digitSum;
     }
+
+
 
     /**
      * Formats a transaction line string with consistent formatting.
