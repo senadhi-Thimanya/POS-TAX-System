@@ -20,7 +20,7 @@
          </font></Button>
       <ImageView fx:id="lavenderImageView" fitHeight="358.0" fitWidth="221.0" layoutX="477.0" layoutY="59.0" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@../../../../images/Lavender.jpg" />
+            <Image url="@../../../../images/Tax.jpg" />
          </image></ImageView>
    </children>
 </AnchorPane>

@@ -49,25 +49,34 @@ public class Transaction {
         int capitalCount = 0;
         int simpleCount = 0;
         int numberCount = 0;
+        int underscoreCount = 0;
+        int digitSum = 0;
 
-        // Count characters according to the rules
+        // Count characters according to the enhanced rules
         for (char c : transactionLine.toCharArray()) {
             if (Character.isUpperCase(c)) {
                 capitalCount++;
             } else if (Character.isLowerCase(c)) {
                 simpleCount++;
-            } else if (Character.isDigit(c) || c == '.') {
+            } else if (Character.isDigit(c)) {
                 numberCount++;
+                // Add the actual digit value to the sum
+                digitSum += Character.getNumericValue(c);
+            } else if (c == '.') {
+                numberCount++;
+            } else if (c == '_') {
+                underscoreCount++;
             }
-            // Note: Commas and underscores are not counted
+            // Note: Commas are not counted
         }
 
-        // Calculate checksum
-        int calculatedChecksum = capitalCount + simpleCount + numberCount;
+        // Calculate enhanced checksum
+        int calculatedChecksum = capitalCount + simpleCount + numberCount + underscoreCount + digitSum + numberCount;
 
         // Compare with provided checksum
         return String.valueOf(calculatedChecksum).equals(getChecksum());
     }
+
 
     private void calculateDiscountedPrice() {
         double discounted = getSalePrice() - (getSalePrice() * (getDiscount() / 100));
