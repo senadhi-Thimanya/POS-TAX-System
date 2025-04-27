@@ -1,6 +1,7 @@
 package com.example.tax.controllers;
 
 import com.example.tax.models.Transaction;
+import com.example.tax.utils.AlertUtils;
 import com.example.tax.utils.ChecksumUtil;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -31,6 +32,7 @@ public class UpdateViewController {
     private Button cancelBtn;
 
     private Transaction transaction;
+    private boolean hasChanges = false;
 
     /**
      * Sets the transaction to be edited and populates the form fields.
@@ -46,6 +48,23 @@ public class UpdateViewController {
         discountField.setText(String.valueOf(transaction.getDiscount()));
         discPriceLabel.setText(String.valueOf(transaction.getDiscountedPrice()));
         checksumLabel.setText(transaction.getChecksum());
+
+        // Track changes in fields
+        itemCodeField.textProperty().addListener((observable, oldValue, newValue) -> {
+            hasChanges = true;
+        });
+
+        costField.textProperty().addListener((observable, oldValue, newValue) -> {
+            hasChanges = true;
+        });
+
+        salePriceField.textProperty().addListener((observable, oldValue, newValue) -> {
+            hasChanges = true;
+        });
+
+        discountField.textProperty().addListener((observable, oldValue, newValue) -> {
+            hasChanges = true;
+        });
     }
 
     /**
@@ -84,6 +103,16 @@ public class UpdateViewController {
     }
 
     /**
+     * Validates if the item code contains any special characters except underscore.
+     *
+     * @param itemCode The item code to validate
+     * @return true if valid, false if it contains special characters
+     */
+    private boolean isValidItemCode(String itemCode) {
+        return !itemCode.matches(".*[!@#$%^&*()+=\\[\\]{}|;:'\",.<>/?`~-].*");
+    }
+
+    /**
      * Generates a new checksum based on the current field values.
      * Called when the user clicks the "Generate Checksum" button.
      */
@@ -91,50 +120,47 @@ public class UpdateViewController {
     private void generateChecksum() {
         try {
             String itemCode = itemCodeField.getText();
+
+            // Validate item code
+            if (!isValidItemCode(itemCode)) {
+                AlertUtils.showError("Validation Error", "Invalid Input", "Item code contains invalid special characters");
+                return;
+            }
+
             double cost = Double.parseDouble(costField.getText());
             double salePrice = Double.parseDouble(salePriceField.getText());
             double discount = Double.parseDouble(discountField.getText());
+
+            // Validate numeric values
+            if (cost < 0) {
+                AlertUtils.showError("Validation Error", "Invalid Input", "Cost cannot be negative");
+                return;
+            }
+
+            if (salePrice < 0) {
+                AlertUtils.showError("Validation Error", "Invalid Input", "Sale price cannot be negative");
+                return;
+            }
+
+            if (discount < 0 || discount > 100) {
+                AlertUtils.showError("Validation Error", "Invalid Input", "Discount must be between 0 and 100");
+                return;
+            }
+
             // Calculate discounted price
             double discountedPrice = salePrice - (salePrice * discount / 100);
 
             // Use the utility class to format transaction line and calculate checksum
-            String transactionLine = String.format("%s,%.2f,%.2f,%.1f,%.2f",
+            String transactionLine = ChecksumUtil.formatTransactionLine(
                     itemCode, cost, salePrice, discount, discountedPrice);
 
-            int calculatedChecksum = 0;
-
-            // Calculate checksum manually if ChecksumUtil is not available
-            int capitalCount = 0;
-            int simpleCount = 0;
-            int numberCount = 0;
-            int underscoreCount = 0;
-            int digitSum = 0;
-
-            // Count characters according to the enhanced rules
-            for (char c : transactionLine.toCharArray()) {
-                if (Character.isUpperCase(c)) {
-                    capitalCount++;
-                } else if (Character.isLowerCase(c)) {
-                    simpleCount++;
-                } else if (Character.isDigit(c)) {
-                    numberCount++;
-                    // Add the actual digit value to the sum
-                    digitSum += Character.getNumericValue(c);
-                } else if (c == '.') {
-                    numberCount++;
-                } else if (c == '_') {
-                    underscoreCount++;
-                }
-            }
-
-            // Calculate enhanced checksum
-            calculatedChecksum = capitalCount + simpleCount + numberCount + underscoreCount + digitSum + numberCount;
+            int calculatedChecksum = ChecksumUtil.calculateChecksum(transactionLine);
 
             // Update the checksum label
             checksumLabel.setText(String.valueOf(calculatedChecksum));
         } catch (NumberFormatException e) {
             // Handle invalid input
-            checksumLabel.setText("E");
+            AlertUtils.showError("Validation Error", "Invalid Input", "Please enter valid numeric values for all fields");
         }
     }
 
@@ -144,16 +170,71 @@ public class UpdateViewController {
      */
     @FXML
     private void handleSave() {
-        // Update the transaction with the new values
-        transaction.setItemCode(itemCodeField.getText());
-        transaction.setCost(Double.parseDouble(costField.getText()));
-        transaction.setSalePrice(Double.parseDouble(salePriceField.getText()));
-        transaction.setDiscount(Double.parseDouble(discountField.getText()));
-        transaction.setDiscountedPrice(Double.parseDouble(discPriceLabel.getText()));
-        transaction.setChecksum(checksumLabel.getText());
-        transaction.setProfit(transaction.getDiscountedPrice() - transaction.getCost());
-        // Close the window
-        closeWindow();
+        try {
+            // Validate item code
+            String itemCode = itemCodeField.getText();
+            if (itemCode.isEmpty()) {
+                AlertUtils.showError("Validation Error", "Invalid Input", "Item code cannot be empty");
+                return;
+            }
+            if (!isValidItemCode(itemCode)) {
+                AlertUtils.showError("Validation Error", "Invalid Input", "Item code contains invalid special characters");
+                return;
+            }
+
+            // Validate numeric fields
+            double cost = Double.parseDouble(costField.getText());
+            double salePrice = Double.parseDouble(salePriceField.getText());
+            double discount = Double.parseDouble(discountField.getText());
+
+            // Check for negative values
+            if (cost < 0) {
+                AlertUtils.showError("Validation Error", "Invalid Input", "Cost cannot be negative");
+                return;
+            }
+            if (salePrice < 0) {
+                AlertUtils.showError("Validation Error", "Invalid Input", "Sale price cannot be negative");
+                return;
+            }
+
+            // Check discount range
+            if (discount < 0 || discount > 100) {
+                AlertUtils.showError("Validation Error", "Invalid Input", "Discount must be between 0 and 100");
+                return;
+            }
+
+            // Check if cost exceeds sale price
+            if (cost > salePrice) {
+                boolean proceed = AlertUtils.showWarningWithOptions(
+                        "Warning",
+                        "Cost exceeds Sale Price",
+                        "The cost is higher than the sale price, which will result in negative profit."
+                );
+                if (!proceed) {
+                    return;
+                }
+            }
+
+
+            // Auto-generate checksum if needed
+            if (checksumLabel.getText().isEmpty() || hasChanges) {
+                generateChecksum();
+            }
+
+            // Update the transaction with the new values
+            transaction.setItemCode(itemCode);
+            transaction.setCost(cost);
+            transaction.setSalePrice(salePrice);
+            transaction.setDiscount(discount);
+            transaction.setDiscountedPrice(Double.parseDouble(discPriceLabel.getText()));
+            transaction.setChecksum(checksumLabel.getText());
+            transaction.setProfit(transaction.getDiscountedPrice() - transaction.getCost());
+
+            // Close the window
+            closeWindow();
+        } catch (NumberFormatException e) {
+            AlertUtils.showError("Validation Error", "Invalid Input", "Please enter valid numeric values for all fields");
+        }
     }
 
     /**
@@ -162,6 +243,17 @@ public class UpdateViewController {
      */
     @FXML
     private void handleCancel() {
+        if (hasChanges) {
+            boolean proceed = AlertUtils.showConfirmation(
+                    "Confirm Cancel",
+                    "Unsaved Changes",
+                    "You have unsaved changes. Are you sure you want to cancel?"
+            );
+            if (!proceed) {
+                return;
+            }
+        }
+
         closeWindow();
     }
 
@@ -172,4 +264,5 @@ public class UpdateViewController {
         Stage stage = (Stage) cancelBtn.getScene().getWindow();
         stage.close();
     }
+
 }

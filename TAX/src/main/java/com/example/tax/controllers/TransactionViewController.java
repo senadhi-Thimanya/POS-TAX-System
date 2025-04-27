@@ -1,6 +1,7 @@
 package com.example.tax.controllers;
 
 import com.example.tax.models.Transaction;
+import com.example.tax.utils.AlertUtils;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -9,10 +10,8 @@ import javafx.scene.control.*;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 import javafx.scene.paint.Color;
 import java.io.IOException;
-import java.text.NumberFormat;
 import java.util.List;
 
 /**
@@ -168,7 +167,7 @@ public class TransactionViewController {
             transactionTable.refresh();
             updateTotalProfit();
         } catch (Exception e) {
-            showError("Column Initialization Error", "Failed to initialize columns", e.getMessage());
+            AlertUtils.showError("Column Initialization Error", "Failed to initialize columns", e.getMessage());
             e.printStackTrace();
         }
     }
@@ -182,7 +181,7 @@ public class TransactionViewController {
         // Get the selected transaction
         Transaction selectedTransaction = transactionTable.getSelectionModel().getSelectedItem();
         if (selectedTransaction == null) {
-            showError("Selection Error", "No Transaction Selected", "Please select a transaction to edit.");
+            AlertUtils.showError("Selection Error", "No Transaction Selected", "Please select a transaction to edit.");
             return;
         }
 
@@ -210,7 +209,7 @@ public class TransactionViewController {
             transactionTable.refresh();
             updateTotalProfit();
         } catch (IOException e) {
-            showError("Update Error", "Failed to open update window", e.getMessage());
+            AlertUtils.showError("Update Error", "Failed to open update window", e.getMessage());
             e.printStackTrace();
         }
     }
@@ -226,17 +225,13 @@ public class TransactionViewController {
 
         // Check if a transaction is selected
         if (selectedTransaction == null) {
-            showError("Selection Error", "No Transaction Selected", "Please select a transaction to delete.");
+            AlertUtils.showWarning("Selection Error", "No Transaction Selected", "Please select a transaction to delete.");
             return;
         }
 
         // Check if the selected transaction is valid
         if (selectedTransaction.isValidChecksum()) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Warning");
-            alert.setHeaderText("Cannot Delete Valid Record");
-            alert.setContentText("Only invalid records can be deleted.");
-            alert.showAndWait();
+            AlertUtils.showWarning("Warning", "Cannot Delete Valid Record", "Only invalid records can be deleted.");
             return;
         }
 
@@ -316,23 +311,8 @@ public class TransactionViewController {
             stage.setScene(scene);
             stage.show();
         } catch (IOException e) {
-            showError("Navigation Error", "Failed to go back", e.getMessage());
+            AlertUtils.showError("Navigation Error", "Failed to go back", e.getMessage());
             e.printStackTrace();
         }
-    }
-
-    /**
-     * Utility method to show error alerts.
-     *
-     * @param title The alert title
-     * @param header The alert header text
-     * @param content The alert content text
-     */
-    private void showError(String title, String header, String content) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(header);
-        alert.setContentText(content);
-        alert.showAndWait();
     }
 }

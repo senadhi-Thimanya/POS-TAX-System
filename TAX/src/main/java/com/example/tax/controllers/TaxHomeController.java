@@ -1,15 +1,14 @@
 package com.example.tax.controllers;
 
 import com.example.tax.models.Transaction;
+import com.example.tax.utils.AlertUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.scene.image.Image;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -52,17 +51,6 @@ public class TaxHomeController {
     }
 
     /**
-     * Initializes the controller.
-     * Sets up the background image.
-     */
-    /*@FXML
-    public void initialize() {
-        // Load image as before
-        Image image = new Image(getClass().getResource("/images/Lavender.jpg").toString());
-        lavenderImageView.setImage(image);
-    }*/
-
-    /**
      * Imports transactions from a CSV file.
      * Parses each line and creates Transaction objects.
      *
@@ -92,27 +80,27 @@ public class TaxHomeController {
                         );
                         transactions.add(transaction);
                     } catch (NumberFormatException e) {
-                        showError("Invalid number format in line " + (i + 1) + ": " + e.getMessage());
+                        AlertUtils.showError("Import Error", "Failed to process file", "Invalid number format in line " + (i + 1) + ": " + e.getMessage());
                         e.printStackTrace();
                         return;
                     } catch (Exception e) {
-                        showError("Error processing line " + (i + 1) + ": " + e.getMessage());
+                        AlertUtils.showError("Import Error", "Failed to process file", "Error processing line " + (i + 1) + ": " + e.getMessage());
                         e.printStackTrace();
                         return;
                     }
                 } else {
-                    showError("Invalid data format in line " + (i + 1) + ". Expected at least 6 columns, but found " + data.length);
+                    AlertUtils.showError("Import Error", "Failed to process file", "Invalid data format in line " + (i + 1) + ". Expected at least 6 columns, but found " + data.length);
                     return;
                 }
             }
 
             if (transactions.isEmpty()) {
-                showError("No valid transactions found in the file");
+                AlertUtils.showError("Import Error", "Failed to process file", "No valid transactions found in the file");
                 return;
             }
 
         } catch (IOException e) {
-            showError("Error reading file: " + e.getMessage());
+            AlertUtils.showError("Import Error", "Failed to process file", "Error reading file: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -135,28 +123,16 @@ public class TaxHomeController {
                 stage.setScene(scene);
                 stage.show();
             } else {
-                showError("Failed to initialize transaction view controller");
+                AlertUtils.showError("Import Error", "Failed to process file", "Failed to initialize transaction view controller");
             }
 
         } catch (IOException e) {
-            showError("Error loading transaction view: " + e.getMessage());
+            AlertUtils.showError("Import Error", "Failed to process file", "Error loading transaction view: " + e.getMessage());
             e.printStackTrace();
         } catch (Exception e) {
-            showError("Unexpected error: " + e.getMessage());
+            AlertUtils.showError("Import Error", "Failed to process file", "Unexpected error: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    /**
-     * Displays an error alert with the specified message.
-     *
-     * @param message The error message to display
-     */
-    private void showError(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Import Error");
-        alert.setHeaderText("Failed to process file");
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
 }
