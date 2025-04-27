@@ -204,6 +204,5 @@ class BillManager:
             if bills_data:
                 self.next_bill_id = max(bill['bill_id'] for bill in bills_data) + 1
 
-            print(f"\nLoaded {len(bills_data)} bills from storage")
         except Exception as e:
             print(f"\nError loading bills: {e}")

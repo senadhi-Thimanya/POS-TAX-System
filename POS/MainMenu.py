@@ -410,23 +410,7 @@ def generateTaxFile():
 
     Provides two options:
     1. Generate a single TTF file for all bills
-       - Creates ttf_all_bills.csv with all items from all bills
-       - Format: BillID,ItemCode,Cost,SalePrice,Discount,DiscountedPrice,Checksum
-
     2. Generate a TTF file for a specific bill
-       - Creates ttf_{bill_id}.csv with items from the specified bill
-       - Format: ItemCode,Cost,SalePrice,Discount,DiscountedPrice,Checksum
-
-    Example ttf_all_bills.csv:
-    BillID,ItemCode,Cost,SalePrice,Discount,DiscountedPrice,Checksum
-    1001,Cake124,10.00,15.00,10,13.50,62
-    1001,Lemon_01,3.00,5.00,5,4.75,58
-    1002,Muffin_12,5.00,8.00,0,8.00,45
-
-    Example ttf_1001.csv:
-    ItemCode,Cost,SalePrice,Discount,DiscountedPrice,Checksum
-    Cake124,10.00,15.00,10,13.50,62
-    Lemon_01,3.00,5.00,5,4.75,58
     """
     # Check if there are any bills to process
     if not billManager.bills:
@@ -447,25 +431,14 @@ def generateTaxFile():
             file_name = f"TaxFiles/ttf_all_bills.csv"
 
             with open(file_name, "w") as file:
-                # Write header
-                file.write("BillID,ItemCode,Cost,SalePrice,Discount,DiscountedPrice,Checksum\n")
+                # Write header - use the same format as option 2
+                file.write("ItemCode,Cost,SalePrice,Discount,DiscountedPrice,Checksum\n")
 
                 # Process all bills and their items
                 for bill in billManager.bills:
-                    bill_id = bill['bill_id']
-
                     # Process items for this bill
                     for item in bill['items']:
-                        # Create transaction line
-                        transaction_line = (f"{item['itemcode']},{item['cost']:.2f},"
-                                            f"{item['saleprice']:.2f},{item['discount']},"
-                                            f"{item['discountedprice']:.2f}")
-
-                        # Calculate checksum using enhanced algorithm
-                        checksum = calculateChecksum(transaction_line)
-
-                        # Write line with bill_id and checksum
-                        file.write(f"{bill_id},{transaction_line},{checksum}\n")
+                        write_item_to_file(file, item)
 
             print(f"\nTax Transaction File generated successfully: '{file_name}'")
             print(f"File contains items from all bills")
@@ -485,16 +458,7 @@ def generateTaxFile():
 
                         # Process items for this bill
                         for item in bill['items']:
-                            # Create transaction line
-                            transaction_line = (f"{item['itemcode']},{item['cost']:.2f},"
-                                                f"{item['saleprice']:.2f},{item['discount']},"
-                                                f"{item['discountedprice']:.2f}")
-
-                            # Calculate checksum using enhanced algorithm
-                            checksum = calculateChecksum(transaction_line)
-
-                            # Write line with checksum
-                            file.write(f"{transaction_line},{checksum}\n")
+                            write_item_to_file(file, item)
 
                     print(f"\nTax Transaction File generated successfully: '{file_name}'")
                 else:
@@ -509,6 +473,26 @@ def generateTaxFile():
 
     except Exception as e:
         print(f"\nError generating tax transaction files: {e}")
+
+
+def write_item_to_file(file, item):
+    """
+    Write an item to the tax transaction file with consistent format.
+
+    Args:
+        file: The open file object to write to
+        item: The item dictionary containing item details
+    """
+    # Create transaction line
+    transaction_line = (f"{item['itemcode']},{item['cost']:.2f},"
+                        f"{item['saleprice']:.2f},{item['discount']},"
+                        f"{item['discountedprice']:.2f}")
+
+    # Calculate checksum using enhanced algorithm
+    checksum = calculateChecksum(transaction_line)
+
+    # Write line with checksum (same format for both options)
+    file.write(f"{transaction_line},{checksum}\n")
 
 
 def main():
