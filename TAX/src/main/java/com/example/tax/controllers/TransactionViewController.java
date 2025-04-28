@@ -97,7 +97,7 @@ public class TransactionViewController {
      * Calculates and displays the total profit from all transactions.
      * Called whenever the transaction table changes.
      */
-    private void updateTotalProfit() {
+    public void updateTotalProfit() {
         double totalProfit = 0.0;
         for (Transaction transaction : transactionTable.getItems()) {
             totalProfit += transaction.getProfit();

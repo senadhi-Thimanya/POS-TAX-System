@@ -1,15 +1,12 @@
 package com.example.tax.controllers;
 
-import com.example.tax.models.Transaction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import java.io.File;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 // Note: Testing JavaFX controllers requires special setup
 // This is a simplified example - in a real project, you'd use TestFX or mock the JavaFX environment
