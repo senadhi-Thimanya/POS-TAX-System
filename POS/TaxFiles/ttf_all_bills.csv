@@ -1,0 +1,8 @@
+ItemCode,Cost,SalePrice,Discount,DiscountedPrice,Checksum
+Cake_122,1200,1400,0,1400,50
+Chocolate_1,200,500,10,450,51
+Lemon_3,1500,1600,20,1280,61
+Brownie!,400,400,0,400,40
+LemonTea,300,330,0,330,44
+Donut_2,1200,1400,0,1400,46
+ITEM123,100,150,10,135,52

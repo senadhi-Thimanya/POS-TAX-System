@@ -1,0 +1,2 @@
+ItemCode,Cost,SalePrice,Discount,DiscountedPrice,Checksum
+ITEM123,100.00,150.00,10.0,135.00,52

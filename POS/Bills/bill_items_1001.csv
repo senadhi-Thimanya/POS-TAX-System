@@ -1,0 +1,5 @@
+ItemCode,Cost,SalePrice,Discount,DiscountedPrice,Quantity
+Cake_122,1200.00,1400.00,0.0,1400.00,3
+Chocolate_1,200.00,500.00,10.0,450.00,2
+Lemon_3,1500.00,1600.00,20.0,1280.00,1
+Brownie,400.00,400.00,0.0,400.00,3
