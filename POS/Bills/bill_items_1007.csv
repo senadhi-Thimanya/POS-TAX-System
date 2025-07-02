@@ -1,0 +1,4 @@
+ItemCode,Cost,SalePrice,Discount,DiscountedPrice,Quantity
+Cake123,12000.00,12222.00,10.0,10999.80,2
+Lemon12,1922.00,2000.00,15.0,1700.00,2
+Broownie,10000.00,12000.00,30.0,8400.00,3

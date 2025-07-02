@@ -49,12 +49,12 @@
             <Font name="System Bold" size="12.0" />
          </font>
       </Button>
-      <Button fx:id="deleteInvalidBtn" layoutX="60.0" layoutY="315.0" mnemonicParsing="false" onAction="#deleteAllInvalidRecords" prefHeight="25.0" prefWidth="179.0" style="-fx-background-color: #C0BFD8; -fx-cursor: hand;" text="Delete All Invalid Records" textFill="#7558b5">
+      <Button fx:id="deleteInvalidBtn" layoutX="273.0" layoutY="315.0" mnemonicParsing="false" onAction="#deleteAllInvalidRecords" prefHeight="25.0" prefWidth="179.0" style="-fx-background-color: #C0BFD8; -fx-cursor: hand;" text="Delete All Invalid Records" textFill="#7558b5">
          <font>
             <Font name="System Bold" size="12.0" />
          </font>
       </Button>
-      <Button fx:id="deleteNoProfitBtn" layoutX="284.0" layoutY="315.0" mnemonicParsing="false" onAction="#deleteAllZeroProfitRecords" prefHeight="25.0" prefWidth="179.0" style="-fx-background-color: #C0BFD8;" text="Delete All Profit 0 Records" textFill="#7558b5">
+      <Button fx:id="deleteNoProfitBtn" layoutX="55.0" layoutY="315.0" mnemonicParsing="false" onAction="#deleteAllZeroProfitRecords" prefHeight="25.0" prefWidth="179.0" style="-fx-background-color: #C0BFD8;" text="Delete All Profit 0 Records" textFill="#7558b5">
          <font>
             <Font name="System Bold" size="12.0" />
          </font>
