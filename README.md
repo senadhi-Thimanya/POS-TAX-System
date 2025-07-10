@@ -19,11 +19,20 @@ These systems were built solely for Academic Purposes and they may not be accura
 # How to run the TAX System
 
 - Clone the github repository and navigate to the root folder
-- Install the maven dependencies
 ```
-.\mvnw.cmd javafx:run
+git clone https://github.com/senadhi-Thimanya/POS-TAX-System
+cd POS-TAX-System
 ```
-- Run the Main.java file using the Run button in the IDE
+
+- Install the dependencies
+```
+mvn install
+```
+
+- Run the project
+```
+mvn exec:java
+```
 
 # How to run the POS System
 
@@ -32,4 +41,4 @@ These systems were built solely for Academic Purposes and they may not be accura
 python MainMenu.py
 ```
 
-<h1>Enjoy!</h1>
+<h2>Enjoy!</h2>
