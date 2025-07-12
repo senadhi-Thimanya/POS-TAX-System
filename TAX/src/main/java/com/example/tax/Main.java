@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.scene.image.Image;
 import java.io.IOException;
 
 /**
@@ -23,6 +24,9 @@ public class Main extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("fxml/tax-home-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         stage.setTitle("Tax Dpt Application");
+        // Set the favicon
+        stage.getIcons().add(new Image(Main.class.getResourceAsStream("images/logo.png")));
+
         stage.setScene(scene);
         stage.show();
     }
